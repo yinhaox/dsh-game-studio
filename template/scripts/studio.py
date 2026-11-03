@@ -338,6 +338,10 @@ def changed_gd_scripts(root: str) -> list:
         [git, "diff", "--name-only", "HEAD"],
         [git, "ls-files", "--others", "--exclude-standard"],
         [git, "diff", "--name-only"],
+        # A worker commits before it runs check, so the work-tree diff is empty;
+        # the branch still differs from main and those scripts are the ones to parse.
+        [git, "diff", "--name-only", "origin/main...HEAD"],
+        [git, "diff", "--name-only", "HEAD~1"],
     ]
     names = []
     for command in commands:
@@ -388,6 +392,15 @@ def cmd_check(args, config: dict, root: str) -> int:
     if code != 0:
         print(f"[check] import failed with exit code {code}", file=sys.stderr)
         return _clamp_exit_code(code)
+    # Godot's --import exits 0 while logging a parse failure, so a broken script
+    # would otherwise pass the check that exists to catch it.
+    broken = [line for line in output.splitlines()
+              if "Parse Error" in line or "Failed to load script" in line or "SCRIPT ERROR:" in line]
+    if broken:
+        print("[check] import reported script errors:", file=sys.stderr)
+        for line in broken[:10]:
+            print("  " + line.strip(), file=sys.stderr)
+        return 1
     print("[check] import OK")
 
     if args.no_scripts:
