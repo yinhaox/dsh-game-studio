@@ -6,7 +6,7 @@
 - 机器：Windows，Node 24，pnpm 12，Python 3
 - 引擎：Godot **4.7.2.stable**（本机用 `studio.yaml` 的 `godot.path` 指向可执行文件）
 - GitHub CLI：**2.103.x**，已用一个个人账号登录（`gh auth status` 通过），另有一个 agent 账号做协作者
-- superagent：`C:\Code\Node\dsh-superagent-prototype`，commit `6337fc8`（0.1.0）
+- superagent：一个 `dsh-superagent` checkout，commit `6337fc8`（0.1.0）
 - 本机**没有**运行中的 superagent 部署；因此第 3 节的工单闭环仍需操作者执行。Godot 与 `gh` 已可用。
 
 ## 1. 已通过的验收（本机）

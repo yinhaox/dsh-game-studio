@@ -4,7 +4,7 @@
 
 ## 1. 工程事实
 
-- 仓库根：`C:\Code\Other\dsh-game-studio`
+- 仓库根：本仓库的根目录（下文相对路径都相对它）
 - 包：`packages/studio`（`@local/dsh-game-studio`），单包多入口。
 - 共享代码：`packages/studio/src/shared/`，**只由主代理修改**。
 - 测试：`packages/studio/tests/*.spec.ts`，vitest，运行 `pnpm -C packages/studio test`。

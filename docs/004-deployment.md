@@ -59,8 +59,8 @@ dsh --profile superagent --from-default-profile web --dump-config > $null
 这份 superagent 原型按 POSIX 写了两处 Windows 不兼容的地方，打 `patches/superagent-windows.patch` 再构建：
 
 ```powershell
-git -C C:\Code\Node\dsh-superagent-prototype apply C:\Code\Other\dsh-game-studio\patches\superagent-windows.patch
-pnpm -C C:\Code\Node\dsh-superagent-prototype build
+git -C <superagent 仓库> apply <本仓库>/patches/superagent-windows.patch
+pnpm -C <superagent 仓库> build
 ```
 
 - `stateDir` 接受 `C:/...` 这类盘符绝对路径（原本只接受 `/` 开头）。

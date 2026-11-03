@@ -116,7 +116,7 @@ PASS  notifications: ...
 $env:GH_CONFIG_DIR = "$env:USERPROFILE\.config\gh-agent"
 $git = '<Git for Windows 安装目录>'
 $env:PATH = "$git\usr\bin;$git\bin;$env:PATH"
-Set-Location 'C:\Code\Node\dsh-superagent-prototype'
+Set-Location '<superagent 仓库>'
 dsh --profile superagent --no-open
 ```
 
