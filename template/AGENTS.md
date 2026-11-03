@@ -23,6 +23,7 @@ Do not work from memory of how other Godot projects are laid out. This checkout 
 - Write every path in this repository with forward slashes.
 - Godot writes a `<script>.gd.uid` file beside a script on import. Commit it with the script; never hand-edit its value.
 - `production/` carries a `.gdignore`, so Godot does not import evidence screenshots or release notes. Keep that file, and never put a game asset under `production/`.
+- Input actions are registered at runtime with `InputMap.add_action()` (or `InputMap.action_add_event`), not written into `project.godot`: a story cannot edit the project file, and a runtime action is what a settings screen can rebind.
 
 ## Engine commands
 
