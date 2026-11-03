@@ -25,6 +25,8 @@ jobs:
         run: godot --headless --path . --import
 
       - name: Run the headless checks
+        env:
+          STUDIO_GODOT: godot
         run: python3 scripts/studio.py test
 
       - name: Report the test count
