@@ -1,0 +1,22 @@
+# dsh-game-studio bundle layer.
+#
+# Each row is one independently switchable plugin. Disable a row by id in a
+# profile patch when a studio capability is not wanted.
+- insert:
+    # Proactive sources: each is its own superagent Source kind with its own
+    # panel card, configuration, policy part and health entry.
+    - id: studio-source-evidence
+      name: '@local/dsh-game-studio/source-evidence'
+    - id: studio-source-ci
+      name: '@local/dsh-game-studio/source-ci'
+    - id: studio-source-project
+      name: '@local/dsh-game-studio/source-project'
+    # Guards: each listens to one seam and does one thing.
+    - id: studio-guard-facts
+      name: '@local/dsh-game-studio/guard-facts'
+    - id: studio-guard-rules
+      name: '@local/dsh-game-studio/guard-rules'
+    - id: studio-guard-writes
+      name: '@local/dsh-game-studio/guard-writes'
+    - id: studio-guard-docs
+      name: '@local/dsh-game-studio/guard-docs'

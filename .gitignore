@@ -1,0 +1,8 @@
+node_modules/
+lib/
+*.tsbuildinfo
+.pnpm-store/
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc

@@ -1,0 +1,60 @@
+{
+  "name": "@local/dsh-game-studio",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Godot game studio plugins for dsh-superagent: proactive sources and guard plugins.",
+  "license": "MIT",
+  "type": "module",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./source-evidence": "./lib/source-evidence.js",
+    "./source-ci": "./lib/source-ci.js",
+    "./source-project": "./lib/source-project.js",
+    "./guard-facts": "./lib/guard-facts.js",
+    "./guard-rules": "./lib/guard-rules.js",
+    "./guard-writes": "./lib/guard-writes.js",
+    "./guard-docs": "./lib/guard-docs.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "scripts": {
+    "build": "tsdown",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "yaml": "^2.8.1",
+    "zod": "4.4.3"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": "^4.0.6-alpha.1",
+    "@deepseek-ai/dsh-agent": "^0.2.2-alpha.2",
+    "@deepseek-ai/dsh-llm": "^0.2.2-alpha.2",
+    "@deepseek-ai/dsh-session": "^0.2.2-alpha.2",
+    "@deepseek-ai/dsh-tools": "^0.2.2-alpha.2"
+  },
+  "devDependencies": {
+    "@deepseek-ai/cordis": "4.0.6-alpha.1",
+    "@deepseek-ai/dsh-agent": "0.2.2-alpha.2",
+    "@deepseek-ai/dsh-llm": "0.2.2-alpha.2",
+    "@deepseek-ai/dsh-session": "0.2.2-alpha.2",
+    "@deepseek-ai/dsh-tools": "0.2.2-alpha.2",
+    "@types/node": "22.20.0",
+    "tsdown": "0.22.14",
+    "typescript": "6.0.3",
+    "vitest": "4.1.8"
+  }
+}

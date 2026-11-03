@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  studio:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck the plugins
+        run: pnpm -C packages/studio typecheck
+
+      - name: Test the plugins
+        run: pnpm -C packages/studio test
+
+      - name: Build the plugins
+        run: pnpm -C packages/studio build
+
+      - name: Check the studio kit
+        run: python scripts/check.py
+
+      - name: Test the validators
+        run: python -m unittest discover -s tests -p "test_*.py" -v
+
+      - name: Compile the Python helpers
+        run: python -m py_compile scripts/init.py scripts/check.py scripts/agent-check.py template/scripts/studio.py
+
+  # The contract check needs a dsh-superagent checkout. That repository is a
+  # research prototype and may be private, so this job runs only when the
+  # caller provides a clone: set SUPERAGENT_DIR to a checkout in a workflow
+  # with access to it, or run the check locally:
+  #   python scripts/compat-check.py --superagent <path>

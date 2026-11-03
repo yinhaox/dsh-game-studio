@@ -1,0 +1,10 @@
+studio: My Game
+godot:
+  path: godot
+  version: "4.7"
+check_command: python scripts/studio.py check
+test_command: python scripts/studio.py test
+run_command: python scripts/studio.py run
+capture_command: python scripts/studio.py capture
+evidence_dir: production/qa/evidence
+story_dir: production/stories

@@ -1,0 +1,11 @@
+{
+  "name": "dsh-game-studio",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@12.4.0",
+  "scripts": {
+    "build": "pnpm -C packages/studio build",
+    "typecheck": "pnpm -C packages/studio typecheck",
+    "test": "pnpm -C packages/studio test"
+  }
+}

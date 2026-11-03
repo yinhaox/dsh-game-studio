@@ -1,0 +1,12 @@
+{
+  "superagent": {
+    "package": "dsh-superagent",
+    "version": "0.1.0",
+    "commit": "6337fc823ce20251c8de8085948165c81aaa701e",
+    "path": "",
+    "patches": [
+      "patches/superagent-windows.patch"
+    ],
+    "patch_note": "Windows compatibility: accept a drive-letter absolute stateDir, and filter the router tool restriction to tools the profile actually has (no bash on Windows). The process also needs Git for Windows' usr/bin and bin on PATH for the setup probe's env and the prepare command's sh."
+  }
+}

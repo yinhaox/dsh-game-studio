@@ -1,0 +1,14 @@
+# Godot 4 editor cache and imported resources
+.godot/
+
+# Export presets output
+export/
+
+# Temporary files
+*.tmp
+
+# OS metadata
+.DS_Store
+# Python helper cache
+__pycache__/
+*.pyc

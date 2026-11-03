@@ -1,0 +1,51 @@
+{
+  "rules": [
+    {
+      "id": "design-doc",
+      "name": "Design document",
+      "enabled": true,
+      "instruction": "Matches a GitHub issue whose first line is Type: design, or an explicit request to write a design for a system, a mechanic, or a level.\n\nScope: write only design/<system>.md and design/systems-index.md. Never create or edit src/, scenes/, tests/, scripts/, studio.yaml, or any .gd file. This work type produces documents, not code. If an idea needs a code change to be real, record it as a follow-up story in the document instead of implementing it.\n\nDeliverables: one design document under design/ covering the target experience, constraints, references, open questions, and the numbered list of systems touched; an updated design/systems-index.md that lists the new system; a pull request whose body follows the four required sections.\n\nStop and ask exactly one question when the request has no observable goal, when two sections of the request conflict, or when a choice would change the player experience. State the options, mark one recommended, and do not ask a second question in the same turn. Never guess a creative decision."
+    },
+    {
+      "id": "story-implement",
+      "name": "Story implementation",
+      "enabled": true,
+      "instruction": "Matches a story file under production/stories/ whose status is ready, or an explicit request to implement a story that carries acceptance criteria.\n\nScope: write only src/, scenes/, tests/, the story file itself, and the evidence directory production/qa/evidence/<story-slug>/. Do not touch design/, production/releases/, studio.yaml, or files owned by another story.\n\nDeliverables: the code and scene change; at least one automated test that fails before the change and passes after; a real run of test_command and run_command taken from studio.yaml; PNG screenshots saved in the evidence directory; and an evidence index.md whose line starting with Run result: reads OBSERVED - followed by what was on screen.\n\nStatus: move the story from ready to in-progress when work starts, and to done only when the run evidence exists. If the work cannot proceed, set blocked with a one-line reason.\n\nStop and ask exactly one question when acceptance criteria are ambiguous, when studio.yaml provides no runnable command, or when a design decision is required. Never mark a story done while its Run result: line says NOT VERIFIED."
+    },
+    {
+      "id": "code-review",
+      "name": "Code review",
+      "enabled": true,
+      "instruction": "Matches a request to review a pull request or a diff, or a review issue whose first line is Type: review.\n\nScope: read-only. Do not write, edit, revert, or commit any file, do not push a branch to demonstrate a fix, and do not approve or request changes in place of a human reviewer. Reading the diff, the story file, design documents, and the evidence directory is expected.\n\nDeliverables: one review report on the pull request thread that lists every finding as file:line with a severity of must-fix or suggestion, one sentence of impact per finding, and a verdict naming what a human should decide. Confirm that the pull request body has the four required sections, the change stays inside its story scope, and evidence comes from a real run. Report a missing evidence index or a Run result: of NOT VERIFIED as a must-fix finding.\n\nStop and ask exactly one question when the description and the diff describe different changes, or when a finding depends on a product decision. Describe the fix in words instead of writing it."
+    },
+    {
+      "id": "bug-fix",
+      "name": "Bug fix",
+      "enabled": true,
+      "instruction": "Matches a GitHub issue whose first line is Type: bug and that can be reproduced, or a failing check whose cause lies in the game code.\n\nScope: write only src/, scenes/, tests/, the story file for this defect, and the evidence directory for that story. Do not refactor unrelated files and do not change studio.yaml.\n\nDeliverables: a reproduction recorded as steps or a script inside the evidence directory; a minimized failure case; the fix; a regression test that fails without the fix and passes with it; before and after evidence as screenshots and logs in the evidence directory; and an index.md whose line starting with Run result: reflects the after state. Name the issue number in the pull request body.\n\nStop and ask exactly one question when the report cannot be reproduced after one honest attempt, when the fix would require a design change, or when the cause is in the engine or toolchain rather than in the game code. If the defect cannot be reproduced, report the issue as dropped together with the evidence you gathered; do not guess at a fix and do not close the issue silently."
+    },
+    {
+      "id": "qa-evidence",
+      "name": "QA evidence",
+      "enabled": true,
+      "instruction": "Matches a story that claims to be done while its evidence directory is empty or missing, a request from the producer to complete evidence, or a pull request that claims verification without artifacts.\n\nScope: write only production/qa/evidence/<story-slug>/ and the story file (its Evidence section, acceptance ticks, and status). Do not change game code; if the run reveals a defect, report it and stop rather than fixing it here.\n\nDeliverables: a real run of run_command and capture_command from studio.yaml on this machine; PNG screenshots saved in the evidence directory; the command output saved as a .log file; and an index.md whose first content line after the title starts with Run result: and reads OBSERVED - followed by what was on screen. Use NOT VERIFIED - reason when the run produced no usable screenshot, and N/A - reason only for work with no runtime behavior.\n\nStop and ask exactly one question when studio.yaml has no runnable command, when the engine is missing, or when a human must judge whether a screenshot is correct. Never write Run result: OBSERVED for a run that did not happen, and never copy an older screenshot forward as new evidence."
+    },
+    {
+      "id": "release-prep",
+      "name": "Release preparation",
+      "enabled": true,
+      "instruction": "Matches a request to prepare a version, write release notes, or assemble a release checklist.\n\nScope: write only production/releases/<version>.md and the checklist it owns. Do not modify src/, scenes/, tests/, design/, or studio.yaml. Do not merge pull requests, do not create, move, or delete tags, do not publish artifacts, and do not edit the thread of a change that is under release.\n\nDeliverables: a release document holding the version, the list of merged pull requests included, player-facing patch notes, known issues, and a checklist whose every item names the command or the person that closes it. Aggregate evidence already linked from stories; do not claim a story shipped while its Run result: line says NOT VERIFIED.\n\nStop and ask exactly one question when a pull request is listed but unmerged, when the version number is ambiguous, or when a checklist item needs a human signature. Hand the document to a human for approval and stop; never announce or publish a release yourself."
+    },
+    {
+      "id": "studio-maintenance",
+      "name": "Studio maintenance",
+      "enabled": true,
+      "instruction": "Matches an engineering failure that is not a game defect: a parse or import failure in a scene, script, or data file; an engine version mismatch between project.godot and studio.yaml; or configuration drift in studio.yaml, scripts/studio.py, or the agent configuration.\n\nScope: write only studio.yaml, scripts/studio.py, the capture addon under addons/studio_capture/, and engineering configuration files. Do not change gameplay code in src/ or scenes/, and do not weaken story acceptance criteria or evidence rules to make a check pass.\n\nDeliverables: the smallest change that makes check_command exit zero; the output of check_command before and after the change; and a one-line statement of the cause in the pull request body. When project.godot and studio.yaml disagree on version, list both values in one table instead of picking a winner silently.\n\nStop and ask exactly one question when the failure sits inside the engine installation itself, when a version change would migrate project assets, or when the drift may be intentional. Do not upgrade the engine or the project format without an explicit human decision."
+    }
+  ],
+  "eval": {
+    "mode": "observe",
+    "timeoutSeconds": 120,
+    "model": null
+  }
+}
