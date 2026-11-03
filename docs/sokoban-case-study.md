@@ -1,8 +1,9 @@
 # Case study: a 3D Sokoban, built by the studio
 
 The kit's first real product was a commercial-quality 3D Sokoban developed
-entirely through GitHub tickets: **40 commits, 12 merged pull requests, 20
-levels, 884 headless checks, three platform exports.**
+entirely through GitHub tickets: **45 commits, 15 merged pull requests, 20
+levels, 911 headless checks, three platform exports and a published 0.1.0
+release.**
 
 - Game repository: <https://github.com/yinhaox/sokoban-3d>
 - Deployment: a second superagent profile (`superagent-sokoban`, port 3083,
@@ -27,6 +28,9 @@ levels, 884 headless checks, three platform exports.**
 | #20, #22 | story | boot-only debug arguments for state-specific screenshots |
 | #21, #23 | story | seven runtime-synthesized audio cues wired to gameplay |
 | #24, #25 | release-prep | 0.1.0 release notes and checklist |
+| #26, #29 | story | visual polish: grid, contact shadows, room base, faded-wall outlines |
+| #27, #28 | design-doc | aligned the audio page with runtime synthesis |
+| #30, #31 | bug | faded walls lost their black holes and per-cell seams |
 
 Each story and bug PR carried its own `check.log`, `test.log`, `capture` logs
 and PNGs under `production/qa/evidence/<slug>/`, and the merge gate was a
@@ -46,6 +50,13 @@ person reading them.
 | Merging a PR that adds a `class_name` broke `test` until an import | `studio.py test` imports first |
 | The game repository's CI ran the shared `studio.yaml` with a Windows engine path | `STUDIO_GODOT` overrides the path; CI names `godot` |
 | Two issues filed during a slow poll were never read | a ten-minute notification lookback in the superagent patch |
+
+## Release
+
+`v0.1.0` is tagged and published with Windows, Linux and Web downloads:
+<https://github.com/yinhaox/sokoban-3d/releases/tag/v0.1.0>. The exported
+Windows binary was launched and captured from the shipped build, not the
+editor.
 
 ## What is still rough
 
