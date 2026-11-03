@@ -22,6 +22,7 @@ Do not work from memory of how other Godot projects are laid out. This checkout 
 - Game code lives in src/ and scenes/. Tooling lives in scripts/.
 - Write every path in this repository with forward slashes.
 - Godot writes a `<script>.gd.uid` file beside a script on import. Commit it with the script; never hand-edit its value.
+- `production/` carries a `.gdignore`, so Godot does not import evidence screenshots or release notes. Keep that file, and never put a game asset under `production/`.
 
 ## Engine commands
 
