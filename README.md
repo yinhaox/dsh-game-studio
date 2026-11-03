@@ -58,6 +58,8 @@ Godot 不在 `PATH` 上时（例如 Steam 版），把可执行文件写进 `stu
 
 ```powershell
 python scripts/init.py ../my-game --studio "My Game" --godot "<Godot 可执行文件绝对路径>"
+# 生成的 studio.yaml 只写 path: godot；本机路径通过环境变量给：
+# $env:STUDIO_GODOT = "<Godot 可执行文件绝对路径>"
 ```
 
 推到 GitHub，然后按 [setup/studio-setup.md](setup/studio-setup.md) 让 superagent 主 Session 写入规则与提示段。

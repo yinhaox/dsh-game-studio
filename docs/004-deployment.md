@@ -13,13 +13,13 @@
 | Python 3 | `scripts/studio.py`、内容层校验 | `python --version` |
 | git 2.32+ | worktree 与准备命令 | `git --version` |
 | GitHub CLI `gh` | agent 账号的凭据 | `gh --version` |
-| Godot 4.7 | 引擎，`godot` 必须在 `PATH` 上（或用 `studio.yaml.godot.path` 指绝对路径） | `godot --version` |
+| Godot 4.7 | 引擎；`studio.yaml` 里写 `godot`，本机装在其他位置时用 `STUDIO_GODOT` 指绝对路径 | `godot --version` |
 | DeepSeek Harness（`dsh`） | 运行时，版本需满足 superagent 的 `engines.dsh` | `dsh --version` |
 | 桌面会话 | 真实渲染，截图证据只能来自这里 | 已登录、未锁屏 |
 
 还需要：一个给 agent 用的 GitHub 账号（有仓库写权限，不要有 protected branch 的推送权限）、一个 github.com 上的游戏仓库、一个配置好的模型 provider，以及一个本机 clone——准备命令要从这个 clone 里建 worktree。
 
-Godot 不在 `PATH` 上时（例如 Steam 版），在 `python scripts/init.py ... --godot "<绝对路径>"` 里写一次，或直接改 `studio.yaml` 的 `godot.path`。路径含空格时加引号；正斜杠可用。
+Godot 不在 `PATH` 上时（例如 Steam 版），不要把它写进 `studio.yaml`：提交的文件里保持 `path: godot`，由本机环境变量覆盖——`$env:STUDIO_GODOT = "<绝对路径>"`。这样 CI 与别人的 clone 都能用，仓库也不会带本机路径。
 
 ## 0. Agent GitHub 账号
 

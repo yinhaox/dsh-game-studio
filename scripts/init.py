@@ -136,13 +136,13 @@ def write_studio_name(config_path: Path, studio: str) -> str:
 
 
 def write_godot_path(config_path: Path, godot: str) -> str:
-    """Replace the ``godot.path`` value with a quoted, forward-slash path.
+    """Keep ``godot.path`` portable and report the machine override instead.
 
-    Only the first ``path:`` line inside the ``godot:`` block is rewritten; the
-    rest of ``studio.yaml`` stays byte-identical, line endings included.
+    A committed absolute path leaks the operator's install and breaks CI, so the
+    shared file keeps ``godot`` and the caller is told to export
+    ``STUDIO_GODOT`` for this machine.
     """
-    normalized = godot.replace("\\", "/")
-    replacement = f"  path: {yaml_scalar(normalized)}"
+    replacement = "  path: godot"
     try:
         with open(config_path, "r", encoding="utf-8", newline="") as handle:
             lines = handle.read().splitlines(keepends=True)
@@ -279,7 +279,8 @@ def run(args: argparse.Namespace, parser: argparse.ArgumentParser) -> int:
     print(f"  excluded {', '.join(EXCLUDED_DIR_NAMES)}")
     print(f"  {config_path}: {planned_line}")
     if args.godot:
-        print(f"  godot.path: {args.godot.replace(chr(92), '/')}")
+        print("  godot.path: godot (shared)")
+        print(f"  for this machine: $env:STUDIO_GODOT = \"{args.godot.replace(chr(92), '/')}\"")
     print_next_steps(destination)
     return 0
 
