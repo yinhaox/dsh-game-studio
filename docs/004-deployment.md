@@ -21,6 +21,8 @@
 
 Godot 不在 `PATH` 上时（例如 Steam 版），不要把它写进 `studio.yaml`：提交的文件里保持 `path: godot`，由本机环境变量覆盖——`$env:STUDIO_GODOT = "<绝对路径>"`。这样 CI 与别人的 clone 都能用，仓库也不会带本机路径。
 
+`STUDIO_GODOT` 必须设在**运行 superagent 的进程环境**里：工作室 Source 的 `check_command` 与 worker 的 shell 都继承它。只在某个终端里临时设置、却从另一个终端启动 superagent，两个 Source 会一直报 `Godot executable not found`。
+
 ## 0. Agent GitHub 账号
 
 superagent 需要一个**独立的 agent 账号**和它自己的 `gh` 登录态。创建步骤、协作者权限、wrapper 写法与验证命令见 [agent-account.md](agent-account.md)。

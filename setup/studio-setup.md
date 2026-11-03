@@ -259,7 +259,10 @@ diff 已获人确认之后，按 `policy` → `eval` → `prompts` 的顺序保�
 - [ ] 发布冻结期内由谁负责暂停是明确的，且他知道怎么暂停。
 - [ ] 停机和恢复各在一个一次性 issue 上试过一次。
 
-### 7.6 工作室 Source（一次性，★ 改配置后重做）
+### 7.6 工作室 Source
+
+- [ ] ★ 运行 superagent 的进程环境里有 `STUDIO_GODOT`（或 `godot` 在 PATH 上）；否则 `studio-project` 的检查永远失败。
+（一次性，★ 改配置后重做）
 
 - [ ] 三个 Source 的卡片都能打开，`checkout` 指向本机游戏仓库 clone 的绝对路径。
 - [ ] `studio-evidence` 与 `studio-ci` 先开；`studio-project` 等 Godot 在 PATH 上再开。
