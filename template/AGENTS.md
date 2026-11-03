@@ -53,7 +53,7 @@ Only files inside your work type's boundary may change. Everything else is read-
 | bug-fix | the smallest set under src/, scenes/, tests/, assets/data/ and assets/shaders/ that removes the root cause, plus the story file and its evidence directory | unrelated refactors, design/, production/releases/ |
 | qa-evidence | production/qa/evidence/<story-slug>/ and the story file | src/, scenes/, tests/, design/ |
 | release-prep | production/releases/<version>.md | code, scenes, tags, merges |
-| studio-maintenance | engineering configuration and scripts: studio.yaml, scripts/, project.godot, the tests harness, .dsh configuration | game design, gameplay behavior beyond the configuration fix |
+| studio-maintenance | engineering configuration and scripts: studio.yaml, scripts/, project.godot, .github/ workflows, the tests harness, .dsh configuration | game design, gameplay behavior beyond the configuration fix |
 
 Hard limits on all work types:
 

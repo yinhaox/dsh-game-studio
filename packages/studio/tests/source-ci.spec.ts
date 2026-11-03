@@ -33,7 +33,7 @@ interface Harness {
 }
 
 /** A fake SourceContext: records receives, thread descriptions, health and commands. */
-function makeHarness(output: string): Harness {
+function makeHarness(output: string, extra: Record<string, string> = {}): Harness {
   const triggers: Trigger[] = []
   const results: ReceiveResult[] = []
   const threads: Harness['threads'] = []
@@ -44,7 +44,7 @@ function makeHarness(output: string): Harness {
   const commands: Commands = {
     run: async (program, args, cwd) => {
       calls.push({ program, args, cwd })
-      return output
+      return extra[`${program} ${args.join(' ')}`] ?? output
     },
   }
   const ctx: SourceContext = {
@@ -168,10 +168,26 @@ describe('studio-ci runCheck', () => {
       program: 'gh',
       args: [
         'run', 'list', '--branch', BRANCH, '--limit', '1',
-        '--json', 'conclusion,status,headSha,url,updatedAt',
+        '--json', 'conclusion,status,headSha,url,updatedAt,databaseId',
       ],
       cwd: CHECKOUT,
     }])
+  })
+
+  it('names the failing job and step in the candidate text', async () => {
+    const harness = makeHarness(redRun(16 * MINUTE, { databaseId: 4242 }), {
+      'gh run view 4242 --json jobs': JSON.stringify({ jobs: [
+        { name: 'ci / test', conclusion: 'failure', steps: [
+          { name: 'Run the headless checks', conclusion: 'failure' },
+        ] },
+        { name: 'build', conclusion: 'success', steps: [] },
+      ] }),
+    })
+    await runCheck(harness.ctx, config(), signal, NOW)
+    const trigger = only(harness.triggers)
+    expect(trigger.text).toContain('ci / test')
+    expect(trigger.text).toContain('Run the headless checks')
+    expect(trigger.meta.failures).toEqual(['ci / test failed at step "Run the headless checks"'])
   })
 
   it('raises one stable candidate once a failure outlives the grace window', async () => {

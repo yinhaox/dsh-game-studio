@@ -7,7 +7,7 @@
 import type { Context } from '@deepseek-ai/cordis'
 import { z } from 'zod'
 import { PRODUCER_BOT } from '../../shared/actor.ts'
-import { isFailingConclusion, latestWorkflowRun } from '../../shared/gh.ts'
+import { failingJobs, isFailingConclusion, latestWorkflowRun } from '../../shared/gh.ts'
 import { pollSource } from '../../shared/poll.ts'
 import { oneLine } from '../../shared/text.ts'
 import { studioTrigger } from '../../shared/trigger.ts'
@@ -106,7 +106,10 @@ export async function runCheck(
   const subject = run.headSha !== undefined && run.headSha.length > 0 ? run.headSha : 'unknown'
   const url = run.url ?? ''
   const fingerprint = `${subject}:${conclusion}:${run.updatedAt ?? ''}`
-  const text = oneLine(`CI ${conclusion} on branch ${config.branch} at ${subject}${url.length > 0 ? `: ${url}` : ''}`)
+  const failures = run.databaseId === undefined ? [] : await failingJobs(commands, config.checkout, run.databaseId)
+  signal.throwIfAborted()
+  const detail = failures.length > 0 ? `; ${failures.join('; ')}` : ''
+  const text = oneLine(`CI ${conclusion} on branch ${config.branch} at ${subject}${detail}${url.length > 0 ? `: ${url}` : ''}`, 600)
 
   await ctx.receive(studioTrigger({
     kind: kind.kind,
@@ -115,7 +118,7 @@ export async function runCheck(
     fingerprint,
     text,
     at: new Date(now).toISOString(),
-    meta: { url, conclusion, branch: config.branch },
+    meta: { url, conclusion, branch: config.branch, failures },
   }))
   ctx.threads.describe(`${kind.kind}:${CHECK}:${subject}`, {
     label: `CI ${conclusion} on ${config.branch}`,
