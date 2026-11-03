@@ -240,7 +240,18 @@ def _terminate(process: subprocess.Popen) -> None:
 
 
 def _format_command(argv) -> str:
-    return " ".join(argv)
+    # The engine path is a machine path; evidence logs must not carry it.
+    quoted = [f'"{arg}"' if " " in arg else arg for arg in argv[1:]]
+    return " ".join(["godot", *quoted])
+
+
+def _display_path(path: str, root: str) -> str:
+    """A path relative to the project root when it sits inside it, so a log stays portable."""
+    try:
+        common = os.path.commonpath([os.path.abspath(path), os.path.abspath(root)])
+    except ValueError:
+        return path
+    return os.path.relpath(path, root) if common == os.path.abspath(root) else path
 
 
 def _print_tail(output: str, limit: int = 40) -> None:
@@ -458,7 +469,7 @@ def cmd_run(args, config: dict, root: str) -> int:
         if parent:
             os.makedirs(parent, exist_ok=True)
         argv.extend(["--", f"--studio-capture={out_path}", *extra])
-        print(f"[run] capture argument: --studio-capture={out_path}")
+        print(f"[run] capture argument: --studio-capture={_display_path(out_path, root)}")
     elif extra:
         argv.extend(["--", *extra])
     if extra:
@@ -521,7 +532,7 @@ def cmd_capture(args, config: dict, root: str) -> int:
 
     extra = list(getattr(args, "extra", []) or [])
     argv = [godot, "--path", ".", "--", f"--studio-capture={out_path}", *extra]
-    print(f"[capture] target: {out_path}")
+    print(f"[capture] target: {_display_path(out_path, root)}")
     if extra:
         print(f"[capture] user arguments: {' '.join(extra)}")
     print(f"[capture] waiting up to {args.timeout:g}s for the PNG")
@@ -554,7 +565,7 @@ def cmd_capture(args, config: dict, root: str) -> int:
         if size is not None and size > MIN_PNG_BYTES:
             _shutdown(process)
             final_size = _file_size(out_path) or size
-            print(f"[capture] OK: {out_path} ({final_size} bytes)")
+            print(f"[capture] OK: {_display_path(out_path, root)} ({final_size} bytes)")
             return 0
 
         _terminate(process)
