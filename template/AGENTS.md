@@ -71,7 +71,7 @@ Evidence must come from a real run of this checkout. A design doc, a reasoning t
   - OBSERVED — what was on screen
   - NOT VERIFIED — what is missing and why
   - N/A — why this story has no runtime behavior to observe
-- OBSERVED is the only value that can close a story. NOT VERIFIED is not done; it is a report that the evidence is missing.
+- OBSERVED closes a story that changes what the player sees. N/A closes one with no runtime behavior to observe, and its reason must say why nothing is observable. NOT VERIFIED never closes a story: it reports that the evidence is missing.
 - A PNG smaller than 1 KB is a broken capture. It does not count as evidence.
 
 Story files carry status in frontmatter: ready, in-progress, done, blocked. Set status: done only after the evidence index exists and the story's Evidence section links to it.
