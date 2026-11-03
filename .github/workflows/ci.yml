@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: pnpm/action-setup@v4
-        with:
-          version: 12
+        # No `version:` here: the action reads `packageManager` from
+        # package.json, and naming both is an error.
 
       - uses: actions/setup-node@v4
         with:
