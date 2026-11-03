@@ -7,6 +7,6 @@
     "patches": [
       "patches/superagent-windows.patch"
     ],
-    "patch_note": "Windows compatibility: accept a drive-letter absolute stateDir, and filter the router tool restriction to tools the profile actually has (no bash on Windows). The process also needs Git for Windows' usr/bin and bin on PATH for the setup probe's env and the prepare command's sh."
+    "patch_note": "Windows and reliability patches: accept a drive-letter absolute stateDir; filter the router tool restriction to tools the profile actually has; look ten minutes back on every notification poll so one slow round cannot skip a mention. The process also needs Git for Windows' usr/bin and bin on PATH for the setup probe's env and the prepare command's sh."
   }
 }

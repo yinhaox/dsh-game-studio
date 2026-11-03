@@ -28,3 +28,28 @@ index 76340cb..5620ad6 100644
  /** Plugin configuration of the dsh-superagent entry. Volatile fields apply without a restart because dsh-superagent reads them on each use; changing `stateDir` remounts the plugin. */
  export const Config = s.object({
    stateDir: absolute('Directory for the database, locks, worker shims, the agent\'s git configuration and, by default, the ticket directories.').required(),
+diff --git a/src/sources/github.ts b/src/sources/github.ts
+index f9b80b6..cfab5b8 100644
+--- a/src/sources/github.ts
++++ b/src/sources/github.ts
+@@ -154,6 +154,8 @@ const newRound = (signal?: AbortSignal): Round => ({ started: new Date().toISOSt
+ const stopped = (ctx: SourceContext, round: Round): boolean => !!round.signal?.aborted || !ctx.config(SOURCE)
+ export interface Retry { since: string; pr: boolean; failedAt?: string; attempts?: number }
+ const RETRY_WINDOW_MS = 24 * 3600_000
++/** How far back each notification poll reaches, so one slow round cannot skip a mention. */
++const NOTIFICATION_LOOKBACK_MS = 10 * 60_000
+ /** True when GitHub returns HTTP 410 (Gone); HTTP 404 is retried because it can indicate revoked access to a private repository. */
+ const deleted = (error: unknown): boolean => error instanceof CliError && error.code === 410
+ /** Records a failed read on the Thread and in the round; deleted (410) or abandoned (24h+) threads do not fail the round. */
+@@ -338,7 +340,10 @@ async function pollNotifications(ctx: SourceContext, round: Round): Promise<{ co
+       delete retries[number]
+     }
+   }
+-  ctx.atomic(() => { state.set(KV.github.since, cursorAt(round.started)); state.set(KV.github.retries, retries) })
++  // A slow or missed poll must not lose a notification: keep a lookback window
++  // and let stable Trigger ids drop what was already stored.
++  const lookback = new Date(Date.parse(round.started) - NOTIFICATION_LOOKBACK_MS).toISOString()
++  ctx.atomic(() => { state.set(KV.github.since, lookback); state.set(KV.github.retries, retries) })
+   return { count: notifications.length, interval }
+ }
+ async function readNotified(ctx: SourceContext, round: Round, number: number, item: Retry): Promise<void> {
