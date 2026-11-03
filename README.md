@@ -80,6 +80,10 @@ setup/                主 Session 用的安装说明
 scripts/              init / check / compat-check
 ```
 
+## 实战案例
+
+这套工具的第一个完整产物是一个 3D 推箱子：40 次提交、12 个合并的 PR、20 关、884 项无头检查、三平台导出。过程与暴露的缺口见 [docs/sokoban-case-study.md](docs/sokoban-case-study.md)。
+
 ## 边界
 
 - 一个部署一个游戏仓库；多个仓库就是多个部署。
