@@ -209,7 +209,9 @@ def resolve_godot(raw_path: str, root: str):
 
 
 def require_godot(config: dict, root: str) -> str:
-    raw_path = config_str(config, "godot.path", DEFAULT_GODOT)
+    # A shared studio.yaml names `godot` from PATH; a machine that keeps the
+    # engine elsewhere sets STUDIO_GODOT, which CI also uses.
+    raw_path = os.environ.get("STUDIO_GODOT") or config_str(config, "godot.path", DEFAULT_GODOT)
     resolved = resolve_godot(raw_path, root)
     if resolved is not None:
         return resolved

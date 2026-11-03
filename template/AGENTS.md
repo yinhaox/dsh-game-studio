@@ -24,6 +24,7 @@ Do not work from memory of how other Godot projects are laid out. This checkout 
 - Godot writes a `<script>.gd.uid` file beside a script on import. Commit it with the script; never hand-edit its value.
 - `production/` carries a `.gdignore`, so Godot does not import evidence screenshots or release notes. Keep that file, and never put a game asset under `production/`.
 - `.github/workflows/ci.yml` installs Godot and runs `scripts/studio.py test` on every push; keep it, because a merge that adds a `class_name` needs an import before the tests pass.
+- `studio.yaml` names Godot as `godot` from PATH. A machine that keeps the engine elsewhere sets `STUDIO_GODOT` instead of editing the shared file; CI relies on that.
 - Input actions are registered at runtime with `InputMap.add_action()` (or `InputMap.action_add_event`), not written into `project.godot`: a story cannot edit the project file, and a runtime action is what a settings screen can rebind.
 
 ## Engine commands
