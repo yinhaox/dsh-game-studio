@@ -1,0 +1,31 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: chickensoft-games/setup-godot@v2
+        with:
+          version: 4.7.2
+          use-dotnet: false
+          include-templates: false
+
+      - name: Install the project
+        run: godot --headless --path . --import
+
+      - name: Run the headless checks
+        run: python3 scripts/studio.py test
+
+      - name: Report the test count
+        run: python3 -c "print('see the test step output for the count')"

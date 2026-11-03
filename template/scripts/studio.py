@@ -413,6 +413,15 @@ def cmd_check(args, config: dict, root: str) -> int:
 
 def cmd_test(args, config: dict, root: str) -> int:
     godot = require_godot(config, root)
+    # A script added with `class_name` is only visible after an import; running
+    # the import first keeps `test` usable on a fresh checkout or a merge.
+    import_code, _, import_timed_out = run_process([godot, "--headless", "--path", ".", "--import"], cwd=root)
+    if import_timed_out:
+        print("[test] import timed out", file=sys.stderr)
+        return 124
+    if import_code != 0:
+        print(f"[test] import failed with exit code {import_code}", file=sys.stderr)
+        return _clamp_exit_code(import_code)
     print(f"[test] project: {root}")
     code, _, timed_out = run_process(
         [godot, "--headless", "--path", ".", "-s", TEST_SCRIPT],
