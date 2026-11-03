@@ -82,6 +82,10 @@ setup/                主 Session 用的安装说明
 scripts/              init / check / compat-check
 ```
 
+## 机制压测
+
+第二款游戏（Coil 3D）专门用来压测第一轮没走通的路径：auto/inferred、人机问答、三个主动 Source、qa-evidence/code-review/studio-maintenance、subagent、面板、暂停/retry、PR 评论唤醒、输入与视觉回归、帧率采样。逐项证据见 [docs/coil-probe-report.md](docs/coil-probe-report.md)。
+
 ## 实战案例
 
 这套工具的第一个完整产物是一个 3D 推箱子：40 次提交、12 个合并的 PR、20 关、884 项无头检查、三平台导出。过程与暴露的缺口见 [docs/sokoban-case-study.md](docs/sokoban-case-study.md)。
