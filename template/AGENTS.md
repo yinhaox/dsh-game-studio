@@ -21,6 +21,7 @@ Do not work from memory of how other Godot projects are laid out. This checkout 
 - Tests: tests/run_tests.gd, a SceneTree script that exits non-zero when an assertion fails.
 - Game code lives in src/ and scenes/. Tooling lives in scripts/.
 - Write every path in this repository with forward slashes.
+- Godot writes a `<script>.gd.uid` file beside a script on import. Commit it with the script; never hand-edit its value.
 
 ## Engine commands
 

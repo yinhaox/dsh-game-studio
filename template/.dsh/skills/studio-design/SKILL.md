@@ -32,6 +32,13 @@ read, write, edit, glob, grep, bash/pwsh, skill, subagent, todo, web, read_image
 11. Commit on a branch and open a PR. Message `design: document <system>`; title `design: <system>`. Use the repository PR sections: What changed, Verification, Evidence, Risks and not covered. In Evidence write the path `design/<system>.md` and the line `Run result: N/A — design-only change, no runtime behavior to observe`. Do not merge, tag, or publish.
 12. Report once with orchestrator_report: state ready, work type design-doc, the PR link, the design path, the index row you changed, and every open question you left for a human.
 
+## Keep the design set reviewable
+
+- One page per system, 60 to 150 lines each. The overview stays under 120 lines; it maps the pages, it does not repeat them.
+- Write in tables and rules, not prose. If a page needs a second example, the rule above it is not precise enough.
+- The whole set should stay under 1,500 lines. When it grows past that, a page is restating another: cut it and link.
+- Every page names the pillar it serves and lists its open questions; an open question is one line, not a section.
+
 ## When to stop instead of shipping
 
 - Report blocked, with the exact file and reason, when the issue names no system, the design contradicts an agreed design page, or the repository has no `design/` directory.
