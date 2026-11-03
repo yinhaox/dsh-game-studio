@@ -37,7 +37,7 @@ read, write, edit, glob, grep, bash/pwsh, skill, subagent, todo, web, read_image
 - `check_command` first. A parse or import failure means no evidence can be produced: report blocked with the command and its output. Do not repair the project here.
 - `test_command`, with the full output and exit code saved as `production/qa/evidence/<story-slug>/test.log`. A failing test is a real result: save the output, report blocked, and never present the run as passing.
 - `run_command` to launch the game in a real desktop session. If the check needs interaction (menu, level, input), record the exact steps you performed.
-- `capture_command --out production/qa/evidence/<story-slug>/<story-slug>-1.png` to take the screenshot; use the next free number and never edit the pixels.
+- `capture_command --out production/qa/evidence/<story-slug>/<story-slug>-1.png` to take the screenshot; use the next free number and never edit the pixels. Add game arguments after `--` (for example `-- --level=3`) when the evidence needs a specific screen; do not add a debug flag to the game for it.
 - Keep one log per command you actually ran, named after the command: `check.log`, `test.log`, `run.log`, `capture.log`.
 
 ## 3. Check that the evidence is real

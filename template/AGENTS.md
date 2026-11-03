@@ -36,6 +36,7 @@ Every engine command comes from studio.yaml. Never hardcode an engine binary pat
 | capture_command | Launches the game, saves a screenshot, exits. This is how evidence PNGs are produced. |
 
 If a key is missing or empty, report it as a studio-maintenance problem. Do not invent a command.
+`run` and `capture` pass extra user arguments to the game after `--`, so one fixed command can screenshot a specific state: `capture --out production/qa/evidence/<slug>/level-3.png -- --level=3`.
 
 ## Write boundaries by work type
 

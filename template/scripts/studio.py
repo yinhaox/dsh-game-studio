@@ -440,13 +440,18 @@ def _resolve_path(value: str, root: str) -> str:
 def cmd_run(args, config: dict, root: str) -> int:
     godot = require_godot(config, root)
     argv = [godot, "--path", "."]
+    extra = list(getattr(args, "extra", []) or [])
     if args.capture:
         out_path = _resolve_path(args.capture, root)
         parent = os.path.dirname(out_path)
         if parent:
             os.makedirs(parent, exist_ok=True)
-        argv.extend(["--", f"--studio-capture={out_path}"])
+        argv.extend(["--", f"--studio-capture={out_path}", *extra])
         print(f"[run] capture argument: --studio-capture={out_path}")
+    elif extra:
+        argv.extend(["--", *extra])
+    if extra:
+        print(f"[run] user arguments: {' '.join(extra)}")
     print("[run] launching the game window; close it to return control")
     code, _, timed_out = run_process(argv, cwd=root, echo=True)
     if timed_out:
@@ -503,8 +508,11 @@ def cmd_capture(args, config: dict, root: str) -> int:
         except OSError as exc:
             print(f"[capture] warning: cannot remove stale file: {exc}", file=sys.stderr)
 
-    argv = [godot, "--path", ".", "--", f"--studio-capture={out_path}"]
+    extra = list(getattr(args, "extra", []) or [])
+    argv = [godot, "--path", ".", "--", f"--studio-capture={out_path}", *extra]
     print(f"[capture] target: {out_path}")
+    if extra:
+        print(f"[capture] user arguments: {' '.join(extra)}")
     print(f"[capture] waiting up to {args.timeout:g}s for the PNG")
 
     log = tempfile.TemporaryFile(mode="w+", encoding="utf-8", errors="replace")
@@ -691,6 +699,12 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="PATH",
         help="write one screenshot to PATH (relative paths resolve against the project root)",
     )
+    run.add_argument(
+        "extra",
+        nargs="*",
+        metavar="ARG",
+        help="user arguments for the game, placed after the engine's --",
+    )
     run.set_defaults(func=cmd_run)
 
     capture = subparsers.add_parser(
@@ -714,6 +728,12 @@ def build_parser() -> argparse.ArgumentParser:
         type=float,
         default=DEFAULT_CAPTURE_TIMEOUT,
         help=f"seconds to wait for the PNG (default: {DEFAULT_CAPTURE_TIMEOUT:g})",
+    )
+    capture.add_argument(
+        "extra",
+        nargs="*",
+        metavar="ARG",
+        help="user arguments for the game, placed after --studio-capture (for example --level=3)",
     )
     capture.set_defaults(func=cmd_capture)
 
