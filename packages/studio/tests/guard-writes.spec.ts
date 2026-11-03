@@ -102,6 +102,15 @@ describe('guard-writes denyReason', () => {
     expect(denyReason(CWD, '.git/refs/heads/main')).toBeDefined()
   })
 
+  it('denies a scratch script in .dsh/ but allows the studio configuration folders', () => {
+    expect(denyReason(CWD, '.dsh/bbox.ps1')).toBeDefined()
+    expect(denyReason(CWD, '.dsh/analyse_png.py')).toBeDefined()
+    expect(denyReason(CWD, '.dsh/hooks.json')).toBeDefined()
+    expect(denyReason(CWD, '.dsh/rules/gdscript.md')).toBeUndefined()
+    expect(denyReason(CWD, '.dsh/skills/studio-story/SKILL.md')).toBeUndefined()
+    expect(denyReason(CWD, '.dsh/agents/qa-lead.md')).toBeUndefined()
+  })
+
   it('allows ordinary project files', () => {
     expect(denyReason(CWD, 'scripts/main.gd')).toBeUndefined()
     expect(denyReason(CWD, 'scenes/main.tscn')).toBeUndefined()

@@ -7,6 +7,9 @@ export const name = 'dsh-game-studio/guard-writes'
 /** The file tools whose `file_path` argument this guard inspects. */
 const FILE_TOOLS: ReadonlySet<string> = new Set(['write', 'edit'])
 
+/** The studio's own configuration folders, which a maintenance ticket may edit. */
+const STUDIO_CONFIG = ['.dsh/rules/', '.dsh/skills/', '.dsh/agents/']
+
 /**
  * The reason a write to `filePath` is refused, or undefined when it is allowed.
  *
@@ -35,6 +38,11 @@ export function denyReason(cwd: string, filePath: string): string | undefined {
   }
   if (normalized === '.git' || normalized.startsWith('.git/')) {
     return `Refusing to write ${target}: .git/ holds repository metadata. Use git commands instead of writing into it.`
+  }
+  // The studio's own configuration is edited only through its named folders;
+  // a scratch script beside them is not studio configuration.
+  if (normalized === '.dsh' || (normalized.startsWith('.dsh/') && !STUDIO_CONFIG.some(prefix => normalized.startsWith(prefix)))) {
+    return `Refusing to write ${target}: .dsh/ holds studio configuration. Edit ${STUDIO_CONFIG.map(prefix => prefix.slice(0, -1)).join(', ')} only, and keep scratch scripts in the ticket directory, not in the repository.`
   }
   return undefined
 }
