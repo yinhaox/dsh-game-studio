@@ -18,7 +18,7 @@ superagent 的 GitHub Trigger 不携带 label，所以四个 issue 模板的正�
 ### `story-implement` — 故事实现
 
 - **何时匹配**：`production/stories/` 下 `status: ready` 的故事，或明确要求实现一个带验收标准的故事。
-- **可写**：`src/`、`scenes/`、`tests/`、故事文件本身、`production/qa/evidence/<story-slug>/`。不碰 `design/`、`production/releases/`、`studio.yaml`，也不碰另一个故事的文件。
+- **可写**：`src/`、`scenes/`、`tests/`、`assets/data/`、`assets/shaders/`、故事文件本身、`production/qa/evidence/<story-slug>/`。不碰 `design/`、`production/releases/`、`studio.yaml`，也不碰另一个故事的文件。
 - **产出**：代码与场景改动；至少一个改动前失败、改动后通过的测试；`test_command` 与 `run_command` 的真实运行；证据目录里的 PNG；`index.md` 里以 `Run result: OBSERVED — …` 开头的一行。故事在开工时 `ready → in-progress`，只有证据存在才 `done`。
 - **停下问一个问题**：验收标准有歧义、`studio.yaml` 没有可运行的命令、或需要设计决定时。`Run result:` 还是 `NOT VERIFIED` 时不许把故事标成 `done`。
 
@@ -32,7 +32,7 @@ superagent 的 GitHub Trigger 不携带 label，所以四个 issue 模板的正�
 ### `bug-fix` — 缺陷修复
 
 - **何时匹配**：issue 第一行是 `Type: bug` 且可复现，或失败检查的原因在游戏代码里。
-- **可写**：`src/`、`scenes/`、`tests/` 中能消除根因的最小集合，加这个缺陷的故事文件与它的证据目录。不顺手重构，不改 `studio.yaml`。
+- **可写**：`src/`、`scenes/`、`tests/`、`assets/data/`、`assets/shaders/` 中能消除根因的最小集合，加这个缺陷的故事文件与它的证据目录。不顺手重构，不改 `studio.yaml`。
 - **产出**：落盘的复现步骤或脚本；最小失败用例；修复；一个没有修复时失败、有修复时通过的回归测试；前后截图与日志；`index.md` 的 `Run result:` 反映修复后的状态；PR 正文写出 issue 编号。
 - **停下问一个问题**：诚实尝试一次仍无法复现、修复需要设计改动、或根因在引擎/工具链而不在游戏代码里时。确实不可复现就报 `dropped` 并附上尝试记录；不许猜一个修复，也不许悄悄关掉 issue。
 
