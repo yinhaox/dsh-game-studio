@@ -41,7 +41,7 @@ func _check(condition: bool, label: String) -> void:
 
 func _test_main_helpers() -> void:
 	var project_name := str(ProjectSettings.get_setting("application/config/name", ""))
-_check(MAIN_SCRIPT.title_text() == project_name, "main.title_text() returns the project name")
+	_check(MAIN_SCRIPT.title_text() == project_name, "main.title_text() returns the project name")
 	_check(MAIN_SCRIPT.status_text(0) == "%s (0 frames)" % project_name, "main.status_text(0) formats zero frames")
 	_check(MAIN_SCRIPT.status_text(7) == "%s (7 frames)" % project_name, "main.status_text(7) formats seven frames")
 	_check(MAIN_SCRIPT.status_text(-3) == "%s (0 frames)" % project_name, "main.status_text() clamps negative frames")
