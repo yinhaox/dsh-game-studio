@@ -89,6 +89,58 @@ index b6d92c3..86cf309 100644
    for (const name of before) if (!kept.has(name)) await unlink(join(dir, name))
    await own(workerGitConfig(stateDir), [
      MARKER,
+diff --git a/src/sources/github-pull.ts b/src/sources/github-pull.ts
+index 87976b5..b761393 100644
+--- a/src/sources/github-pull.ts
++++ b/src/sources/github-pull.ts
+@@ -56,7 +56,7 @@ export function claimPull(ctx: SourceContext, ticketId: string, pr: Pull): strin
+  */
+ export async function observePull(ctx: SourceContext, pr: Pull): Promise<boolean> {
+   const ended = pr.state === 'closed' || !!pr.merged
+-  if (ended) closePull(ctx, pr)
++  if (ended) await closePull(ctx, pr)
+   else {
+     const candidates = agentPull(pr, ctx.deployment) ? ctx.tickets.open().filter(ticket => ticketBranch(ticket, pr.head.ref)) : []
+     const ticket = candidates.length === 1 ? candidates[0]! : undefined
+@@ -77,11 +77,36 @@ function bind(ctx: SourceContext, ticketId: string, pr: Pull, own: boolean): voi
+  * Reports a merged or closed PR once to the open tickets that follow it, whose end the core decides.
+  * Their subscription to the PR stays so a later human comment there resumes the ticket.
+  */
+-function closePull(ctx: SourceContext, pr: Pull): void {
+-  if (!ctx.tickets.open().some(ticket => pullsOf(ticket, true).includes(pr.number))) return
++async function closePull(ctx: SourceContext, pr: Pull): Promise<void> {
++  const tickets = ctx.tickets.open().filter(ticket => pullsOf(ticket, true).includes(pr.number))
++  if (tickets.length === 0) return
++  // GitHub closes the issue itself only when the body says "Closes #n". The studio
++  // merged the change here, so the issue that started the ticket is finished too.
++  if (pr.merged) {
++    const closed = new Set<number>()
++    for (const ticket of tickets) {
++      const meta = ctx.triggers.get(ticket.origin.triggerId)?.meta as { number?: number; isPr?: boolean } | undefined
++      if (typeof meta?.number === 'number' && meta.isPr === false && !closed.has(meta.number)) {
++        closed.add(meta.number)
++        await closeMergedIssue(ctx, meta.number, pr)
++      }
++    }
++  }
+   const at = pr.merged_at ?? pr.closed_at ?? new Date().toISOString()
+   ctx.tickets.threadClosed({ source: SOURCE, id: String(pr.number) }, pr.merged ? 'merged' : 'closed', at)
+ }
++
++const IssueStateSchema = z.object({ state: z.string() })
++
++/** Closes one issue with a comment naming the merged pull request; an already-closed issue is left alone. */
++async function closeMergedIssue(ctx: SourceContext, issue: number, pr: Pull): Promise<void> {
++  try {
++    const state = await ctx.commands.api(IssueStateSchema, `issues/${issue}`)
++    if (state.state !== 'open') return
++    await ctx.commands.run(ctx.deployment.github.cli, ['issue', 'close', String(issue), '--repo', ctx.deployment.repository,
++      '--reason', 'completed', '--comment', `Merged in #${pr.number}.`])
++  } catch { /* Polling continues; the ticket is still ended by the merge below. */ }
++}
+ /**
+  * Builds idempotent outbound notices for IM conversations when a ticket ends with its PR (selecting the last-closed PR it
+  * opened, else the last one it followed). The notice language follows the ticket's source request: Chinese when it contains
 diff --git a/src/sources/github.ts b/src/sources/github.ts
 index f9b80b6..cfab5b8 100644
 --- a/src/sources/github.ts

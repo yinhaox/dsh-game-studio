@@ -7,6 +7,6 @@
     "patches": [
       "patches/superagent-windows.patch"
     ],
-    "patch_note": "Windows and reliability patches: accept a drive-letter absolute stateDir; filter the router tool restriction to tools the profile actually has; write worker CLI shims as .cmd files on Windows so PowerShell can execute them instead of handing them to the shell's open-with dialog; look ten minutes back on every notification poll so one slow round cannot skip a mention. The process also needs Git for Windows' usr/bin and bin on PATH for the setup probe's env and the prepare command's sh."
+    "patch_note": "Windows and lifecycle patches: accept a drive-letter absolute stateDir; filter the router tool restriction to tools the profile actually has; write worker CLI shims as .cmd files on Windows so PowerShell can execute them instead of handing them to the shell's open-with dialog; close the issue that started a ticket when its pull request merges (GitHub only does that for a body with 'Closes #n'); look ten minutes back on every notification poll so one slow round cannot skip a mention. The process also needs Git for Windows' usr/bin and bin on PATH for the setup probe's env and the prepare command's sh."
   }
 }
