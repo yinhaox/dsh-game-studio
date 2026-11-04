@@ -5,6 +5,9 @@ issue, the agent implemented it, a human merged. The second game, **Coil 3D**
 (3D snake), was built while deliberately driving every path that run skipped.
 
 - Game: <https://github.com/yinhaox/coil-3d> (private)
+- Release: **v0.1.0** tagged and published with Windows, Linux and Web
+  downloads: <https://github.com/yinhaox/coil-3d/releases/tag/v0.1.0>
+  (48 commits, 14 merged pull requests, 540 headless checks).
 - Deployment: third profile `superagent-coil`, port 3084, state
   `~/.dsh/state/superagent-coil`, model
   `command-code / deepseek/deepseek-v4.1-flash`, two workers.
