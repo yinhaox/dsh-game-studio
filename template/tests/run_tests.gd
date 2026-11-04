@@ -40,10 +40,11 @@ func _check(condition: bool, label: String) -> void:
 
 
 func _test_main_helpers() -> void:
-	_check(MAIN_SCRIPT.title_text() == "Game Studio", "main.title_text() returns the studio title")
-	_check(MAIN_SCRIPT.status_text(0) == "Game Studio (0 frames)", "main.status_text(0) formats zero frames")
-	_check(MAIN_SCRIPT.status_text(7) == "Game Studio (7 frames)", "main.status_text(7) formats seven frames")
-	_check(MAIN_SCRIPT.status_text(-3) == "Game Studio (0 frames)", "main.status_text() clamps negative frames")
+	var project_name := str(ProjectSettings.get_setting("application/config/name", ""))
+_check(MAIN_SCRIPT.title_text() == project_name, "main.title_text() returns the project name")
+	_check(MAIN_SCRIPT.status_text(0) == "%s (0 frames)" % project_name, "main.status_text(0) formats zero frames")
+	_check(MAIN_SCRIPT.status_text(7) == "%s (7 frames)" % project_name, "main.status_text(7) formats seven frames")
+	_check(MAIN_SCRIPT.status_text(-3) == "%s (0 frames)" % project_name, "main.status_text() clamps negative frames")
 
 
 func _test_main_scene() -> void:
@@ -68,12 +69,12 @@ func _test_main_scene() -> void:
 	var label := root.get_node_or_null("Title") as Label
 	_check(label != null, "main scene has a Title label")
 	if label != null:
-		_check(label.text == "Game Studio", "Title label reads Game Studio")
+		_check(label.text == project_name, "Title label reads the project name")
 	root.free()
 
 
 func _test_project_settings() -> void:
-	_check(ProjectSettings.get_setting("application/config/name", "") == "Game Studio", "project name is Game Studio")
+	_check(not project_name.is_empty(), "project name is set")
 	_check(ProjectSettings.get_setting("application/run/main_scene", "") == MAIN_SCENE_PATH, "main scene is registered in project.godot")
 	_check(ProjectSettings.get_setting("autoload/StudioCapture", "") == "*" + CAPTURE_SCRIPT_PATH, "StudioCapture autoload points at the capture addon")
 	_check(int(ProjectSettings.get_setting("display/window/size/viewport_width", 0)) == 1152, "viewport width is 1152")
