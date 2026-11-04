@@ -10,6 +10,12 @@ updated: 2026-01-01
 
 Why this exists, and the design or issue it comes from.
 
+## Size
+
+- Acceptance criteria: <count>
+- Expected directories and files: <list>
+- Expected diff: <lines, or "one reviewable PR">
+
 ## Acceptance
 
 - [ ] One observable outcome per line.

@@ -65,6 +65,13 @@ Hard limits on all work types:
 
 A "small cleanup" is not a reason to leave your boundary. If the fix needs a file outside it, report the problem instead of taking the file.
 
+## Size a story before writing it
+
+A story is one reviewable change: 1–5 acceptance criteria, at most 3 directories,
+and a diff a person can read in one sitting. More than that is two tickets. If the
+story is larger, report a split plan as one `progress` message and stop; do not
+start an oversized diff.
+
 ## Evidence
 
 Evidence must come from a real run of this checkout. A design doc, a reasoning trace, or a hand-written description is not evidence.

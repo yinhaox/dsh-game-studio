@@ -29,6 +29,20 @@ Stop and ask one question — with options and a recommendation — instead of p
 
 One question, then stop. Do not stack a second question into the same report, and do not produce a partial diff while waiting for the answer.
 
+## Size the ticket before writing
+
+Count the acceptance criteria and the directories you expect to touch before the
+first edit.
+
+- More than 5 criteria, more than 3 directories, or an expected diff over 300
+  lines: do not implement. Report one `progress` message with a split plan (2–5
+  smaller tickets, each with its own acceptance and evidence), recommend the
+  split, and stop. The same rule applies when the work needs two work types.
+- A design file the story cites does not exist: report it instead of inventing the
+  behavior; the design page is its own ticket.
+- Every criterion must be observable. "Make it feel better" is not one; ask for a
+  measurable target in one question rather than guessing.
+
 ## No opportunistic refactors
 
 Small changes stay small.
