@@ -2,6 +2,18 @@
 
 How work leaves the studio: what a pull request contains, what counts as evidence, and the narrow case where it may merge without a human pressing the button.
 
+## The pull request body opens with the issue it closes
+
+When the ticket came from an issue, the first line of the body is:
+
+```markdown
+Closes #<issue-number>
+```
+
+GitHub closes that issue when a person merges the pull request. Without the
+line the code lands and the issue stays open forever; a merged pull request with
+an open issue is an unfinished ticket.
+
 ## The pull request body has four sections
 
 Every pull request uses exactly these headings, in this order. The repository template already carries them; do not invent others and do not drop one.

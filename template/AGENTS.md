@@ -86,6 +86,7 @@ Story files carry status in frontmatter: ready, in-progress, done, blocked. Set 
 - Commit messages use the form <type>: <summary>, for example story: add dash cooldown to the player controller.
 - Use the type that matches the work: design, story, bug, review, evidence, release, chore.
 - One concern per commit. Do not mix a formatting sweep into a behavior change.
+- When the ticket came from an issue, the pull request body starts with `Closes #<issue-number>`; GitHub closes the issue on merge. A merged pull request whose issue is still open is an unfinished ticket.
 - The pull request body uses the template's four sections: What changed, Verification, Evidence, Risks and not covered.
 - Verification states the command you ran and its result. Evidence states the path and the Run result: line.
 - A pull request without evidence is a draft. Say so in the body instead of implying the work is verified.
