@@ -182,6 +182,7 @@ pnpm build
 |---|---|
 | 新 issue 没被接单，`flow.received` 一直是 0 | GitHub Source 只读 `since` 游标之后的活动；进程被强杀或换过状态目录后，游标可能落在 issue 创建时间之后。在 issue 里再发一条 @ 评论即可唤醒（评论按评论时间判断）。不要在进程运行时复制或编辑状态目录里的 SQLite 文件，那会破坏 WAL 并重置游标 |
 | 面板报 agent 的 `gh` 找不到，或 `auth` 失败 | CLI 路径写成绝对路径；先 `gh-agent auth login`，再 `gh-agent api user --jq .login` 确认打印的是 agent 账号。`PATH` 上的 `gh` 若指向你自己的登录，装出来的 PR 会署你的名字 |
+| 保存工作室 Source 设置返回 `404 Source not found` | 部署还在 `starting`（setup 未完成）时，Source 实例尚未注册。等 `/state` 的 `runtime` 与 `github` 都是 `ready` 后再保存；已保存的设置在重启后生效。 |
 | 引擎命令失败，提示找不到 Godot | `studio.yaml` 的 `godot.path` 是 `godot`，必须在 `PATH` 上解析。`python scripts/studio.py check` 找不到引擎时会打印可操作错误并以退出码 2 结束。修 `PATH`（或走 `studio-maintenance` 改 `godot.path`），不要在剧本里硬编码引擎路径 |
 | 守卫像没装：项目事实不注入、越界写入不被拒 | 七行插件没装或被关：看 profile 的 `cordis.patch.yml` 与启动日志。另外四种正常情况：`sessionCwd` 里没有 `project.godot` 就不注入事实；没有 `.dsh/rules/` 就没有路径规则；写入走的是 shell 重定向而不是 `write`/`edit`，`guard-writes` 看不到；同一次会话里同一路径的规则已经注入过，不重复。改完插件要重新 build 并重启 |
 | 工单停在 `blocked` 或 `awaiting answer` | 读最后一份 Report 里那个问题，在 PR 或 issue 上回一条。人回消息会解除 `blocked`；启动失败可以用 retry。不要用 retry 掩盖一个没人回答的问题 |
