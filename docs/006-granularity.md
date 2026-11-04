@@ -14,9 +14,29 @@ how long a person reviews it, and how often a turn stalls. The studio defaults t
 
 `fine` is the default because a worker's context grows with every file and every
 test it touches, and a long ticket is where a stalled turn hurts most. The Coil
-3D run showed the difference directly: a one-criterion footer ticket used 87 k
-input tokens and 43 steps, while the UI-shell feature used 511 k input tokens and
-126 steps for the same worker and model.
+3D run measured the difference with `scripts/studio-metrics.py`:
+
+| Ticket | Size | Work | Steps | Input tokens | Output tokens |
+|---|---|---|---|---|---|
+| UI shell, pause, end panel, save | coarse (2,500 lines) | (long; overnight gap) | 126 | 510,911 | 145,732 |
+| Mode selector in the main menu | fine (156 lines, 5 files) | 20.6 min | 74 | 181,493 | 72,229 |
+| Remember last mode | fine | 9.1 min | 61 | 106,318 | 32,631 |
+| Version in the footer | fine | 8.3 min | 43 | 87,351 | 21,869 |
+| Mode catalog in the logic layer | fine (736 lines with tests) | 7.6 min | 41 | 127,388 | 30,179 |
+
+A fine ticket costs roughly a third of a coarse one in steps and input tokens,
+and finishes in 8–21 minutes. The 20.6-minute outlier asked one scope question
+mid-flight: the issue named a closed list of files, the change needed a fifth, and
+the round trip cost more than the code. **Name directories, not a closed file
+list**, or the boundary check turns into a question.
+
+## No timeout on the model, yet
+
+The metrics separate "slow" from "stuck": the longest single step across the
+measured tickets was 4.5 minutes (a build/test run), and every ticket finished.
+Nothing here justifies a step timeout; a timeout would turn a slow build into a
+failed ticket. Watch for a step beyond ten minutes, and only then consider a
+retry — not a kill.
 
 ## Splitting
 
