@@ -82,6 +82,10 @@ setup/                主 Session 用的安装说明
 scripts/              init / check / compat-check
 ```
 
+## 工单粒度与收尾
+
+工单默认按 fine 粒度拆：1–3 条验收、≤3 个目录、目标 ≤300 行；超了就报告拆分方案而不是硬做（[docs/006-granularity.md](docs/006-granularity.md)）。PR 合并后 issue 自动关闭，两条路径见 [docs/007-issue-lifecycle.md](docs/007-issue-lifecycle.md)。每张工单的墙钟、步数、工具调用与 token 用 `scripts/studio-metrics.py` 统计。
+
 ## 机制压测
 
 第二款游戏（Coil 3D）专门用来压测第一轮没走通的路径：auto/inferred、人机问答、三个主动 Source、qa-evidence/code-review/studio-maintenance、subagent、面板、暂停/retry、PR 评论唤醒、输入与视觉回归、帧率采样。逐项证据见 [docs/coil-probe-report.md](docs/coil-probe-report.md)。
