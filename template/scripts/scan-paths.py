@@ -24,6 +24,7 @@ PATTERNS = [
 SKIP_EXTENSIONS = {
     ".png", ".jpg", ".jpeg", ".webp", ".gif", ".ico", ".ttf", ".otf",
     ".zip", ".exe", ".pck", ".wasm", ".glb", ".bin", ".wav", ".ogg",
+    ".avi", ".mp4", ".mov", ".mkv", ".mp3", ".flac", ".pdf",
     ".import", ".uid",
 }
 
