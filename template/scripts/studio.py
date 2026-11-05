@@ -221,7 +221,7 @@ def require_godot(config: dict, root: str) -> str:
         f"This project expects Godot {version} at godot.path = {raw_path!r} in {CONFIG_NAME}.\n"
         "Fix one of these, then run the command again:\n"
         f"  1. Install Godot {version} and make sure the {DEFAULT_GODOT!r} command works in a shell.\n"
-        "  2. Set godot.path in studio.yaml to an absolute path, for example C:/Tools/Godot/godot.exe.\n"
+        "  2. Set godot.path in studio.yaml to an absolute path, (quote it when it contains spaces).\n"
         "  3. Set godot.path to a path relative to the project root, for example tools/godot/godot.exe.\n"
         f"Project root: {root}"
     )
