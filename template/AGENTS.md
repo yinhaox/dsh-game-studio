@@ -37,6 +37,7 @@ Every engine command comes from studio.yaml. Never hardcode an engine binary pat
 | test_command | Runs the test suite. Your change is not done until this passes. |
 | run_command | Launches the game with a window so the behavior can be seen. |
 | capture_command | Launches the game, saves a screenshot, exits. This is how evidence PNGs are produced. |
+| `python scripts/studio.py clip` | Records a short movie with Godot's Movie Maker for feel review (`--out evidence/x.avi --seconds 6 --fps 30`). Convert with ffmpeg; a still cannot show timing. |
 
 If a key is missing or empty, report it as a studio-maintenance problem. Do not invent a command.
 `run` and `capture` pass extra user arguments to the game after `--`, so one fixed command can screenshot a specific state: `capture --out production/qa/evidence/<slug>/level-3.png -- --level=3`.

@@ -524,6 +524,33 @@ def _log_tail(handle, limit: int = 2000) -> str:
         return ""
 
 
+def cmd_clip(args, config: dict, root: str) -> int:
+    """Record a short movie with Godot's Movie Maker, so feel can be reviewed."""
+    godot = require_godot(config, root)
+    out_path = _resolve_path(args.out, root)
+    parent = os.path.dirname(out_path)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    if os.path.isfile(out_path):
+        os.remove(out_path)
+    seconds = max(1.0, args.seconds)
+    argv = [godot, "--path", ".", "--write-movie", out_path, "--fixed-fps", str(args.fps),
+            "--quit-after", str(int(seconds * args.fps))]
+    extra = list(getattr(args, "extra", []) or [])
+    if extra:
+        argv.extend(["--", *extra])
+    print(f"[clip] recording {seconds:g}s at {args.fps} fps to {_display_path(out_path, root)}")
+    code, _, timed_out = run_process(argv, cwd=root, timeout=args.timeout, echo=True)
+    if timed_out:
+        print("[clip] timed out", file=sys.stderr)
+        return 124
+    if not os.path.isfile(out_path) or os.path.getsize(out_path) <= 1024:
+        print("[clip] no usable movie was written", file=sys.stderr)
+        return 1
+    print(f"[clip] OK: {_display_path(out_path, root)} ({os.path.getsize(out_path)} bytes)")
+    return 0
+
+
 def cmd_capture(args, config: dict, root: str) -> int:
     godot = require_godot(config, root)
 
@@ -771,6 +798,18 @@ def build_parser() -> argparse.ArgumentParser:
         help="user arguments for the game, placed after --studio-capture (for example --level=3)",
     )
     capture.set_defaults(func=cmd_capture)
+
+    clip_parser = subparsers.add_parser(
+        "clip",
+        parents=[common],
+        help="record a short movie with Godot's Movie Maker",
+    )
+    clip_parser.add_argument("--out", required=True, metavar="PATH", help="movie path (AVI or PNG sequence)")
+    clip_parser.add_argument("--seconds", type=float, default=6.0, help="recording length in seconds (default: 6)")
+    clip_parser.add_argument("--fps", type=int, default=30, help="fixed frames per second (default: 30)")
+    clip_parser.add_argument("--timeout", type=float, default=120.0, help="seconds before the run is stopped")
+    clip_parser.add_argument("extra", nargs="*", metavar="ARG", help="user arguments for the game")
+    clip_parser.set_defaults(func=cmd_clip)
 
     return parser
 
