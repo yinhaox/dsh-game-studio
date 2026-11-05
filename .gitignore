@@ -1,5 +1,7 @@
 node_modules/
 lib/
+# Local Playwright CLI snapshots embed the DSH session list; never commit them.
+.playwright-cli/
 *.tsbuildinfo
 .pnpm-store/
 .DS_Store
