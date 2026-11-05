@@ -1,0 +1,65 @@
+diff --git a/src/sources/github.ts b/src/sources/github.ts
+index f9b80b6..91b2904 100644
+--- a/src/sources/github.ts
++++ b/src/sources/github.ts
+@@ -154,6 +154,8 @@ const newRound = (signal?: AbortSignal): Round => ({ started: new Date().toISOSt
+ const stopped = (ctx: SourceContext, round: Round): boolean => !!round.signal?.aborted || !ctx.config(SOURCE)
+ export interface Retry { since: string; pr: boolean; failedAt?: string; attempts?: number }
+ const RETRY_WINDOW_MS = 24 * 3600_000
++/** How far back each notification poll reaches, so one slow round cannot skip a mention. */
++const NOTIFICATION_LOOKBACK_MS = 10 * 60_000
+ /** True when GitHub returns HTTP 410 (Gone); HTTP 404 is retried because it can indicate revoked access to a private repository. */
+ const deleted = (error: unknown): boolean => error instanceof CliError && error.code === 410
+ /** Records a failed read on the Thread and in the round; deleted (410) or abandoned (24h+) threads do not fail the round. */
+@@ -281,8 +283,14 @@ export async function pollRound(ctx: SourceContext, signal?: AbortSignal): Promi
+   const round = newRound(signal)
+   const notified = await pollNotifications(ctx, round).then(value => ({ value }), (error: unknown) => ({ error }))
+   await pollRepository(ctx, round)
+-  await pollTicketPulls(ctx, signal, round)
+-  await pollThreads(ctx, signal, round)
++  // Thread and ticket polls cost one read each. When the token is nearly spent,
++  // stop the per-thread reads so the next hour still has budget for new triggers.
++  const remaining = await rateRemaining(ctx)
++  const nearLimit = remaining !== undefined && remaining < 300
++  if (!nearLimit) {
++    await pollTicketPulls(ctx, signal, round)
++    await pollThreads(ctx, signal, round)
++  }
+   if ('error' in notified) throw notified.error
+   const { count, interval } = notified.value
+   if (signal?.aborted) return interval
+@@ -291,7 +299,8 @@ export async function pollRound(ctx: SourceContext, signal?: AbortSignal): Promi
+   const dropped = (round.dropped.length ? `; deleted on GitHub: ${named(round.dropped)}` : '')
+     + (round.abandoned.length ? `; dropped after their reads kept failing: ${named(round.abandoned)}` : '')
+     + (round.tally.skipped ? `; ${round.tally.skipped} unreadable items skipped` : '')
+-  ctx.report('github', { state: 'ready', detail: `${count} notifications; next poll ≥ ${interval}s${dropped}`, at: round.started })
++  const paused = nearLimit ? `; thread polls paused (${remaining} reads left)` : ''
++  ctx.report('github', { state: 'ready', detail: `${count} notifications; next poll ≥ ${interval}s${paused}${dropped}`, at: round.started })
+   return interval
+ }
+ /** Reads notifications since the cursor and each Issue or PR they name, advancing the cursor atomically with the retry map for failed reads; deleted (410) Issues are dropped once their error is recorded. */
+@@ -338,7 +347,10 @@ async function pollNotifications(ctx: SourceContext, round: Round): Promise<{ co
+       delete retries[number]
+     }
+   }
+-  ctx.atomic(() => { state.set(KV.github.since, cursorAt(round.started)); state.set(KV.github.retries, retries) })
++  // A slow or missed poll must not lose a notification: keep a lookback window
++  // and let stable Trigger ids drop what was already stored.
++  const lookback = new Date(Date.parse(round.started) - NOTIFICATION_LOOKBACK_MS).toISOString()
++  ctx.atomic(() => { state.set(KV.github.since, lookback); state.set(KV.github.retries, retries) })
+   return { count: notifications.length, interval }
+ }
+ async function readNotified(ctx: SourceContext, round: Round, number: number, item: Retry): Promise<void> {
+diff --git a/src/sources/poll.ts b/src/sources/poll.ts
+index 1e402c8..57b839f 100644
+--- a/src/sources/poll.ts
++++ b/src/sources/poll.ts
+@@ -3,7 +3,7 @@ import { liveTicket, type Thread } from '../core/index.ts'
+ import type { SourceContext } from './host.ts'
+ 
+ /** How long a subscribed Thread with no live Ticket continues to be polled after its last Trigger or Ticket end. */
+-export const POLL_HORIZON_MS = 14 * 24 * 3600_000
++export const POLL_HORIZON_MS = 48 * 3600_000
+ /** True when a subscribed thread has a live ticket or recent activity/completion within `POLL_HORIZON_MS`. */
+ export function polled(ctx: SourceContext, thread: Thread, now = Date.now()): boolean {
+   const tickets = thread.subscriptions.map(id => ctx.tickets.get(id))
