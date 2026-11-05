@@ -11,6 +11,33 @@ const FILE_TOOLS: ReadonlySet<string> = new Set(['write', 'edit'])
 const STUDIO_CONFIG = ['.dsh/rules/', '.dsh/skills/', '.dsh/agents/']
 
 /**
+ * Absolute filesystem paths that must never land in a committed file: a drive
+ * letter, a UNC share, or a POSIX home/temp path. Evidence logs are produced by
+ * commands, not by this tool, so this only constrains authored text.
+ */
+const ABSOLUTE_PATHS: readonly RegExp[] = [
+  /(^|[^\w])([A-Za-z]:[\\/])/,
+  /^\\\\[A-Za-z0-9._-]+\\/m,
+  /(^|[\s"'\`(])\/(home|Users|root|tmp|mnt|var\/folders)\//,
+]
+
+/** The text a file tool is about to write, when it has one. */
+function contentOf(execution: { name?: string; arguments?: unknown }): string | undefined {
+  const args = execution.arguments as { content?: unknown; new_string?: unknown } | undefined
+  const value = execution.name === 'edit' ? args?.new_string : args?.content
+  return typeof value === 'string' ? value : undefined
+}
+
+/** The first absolute path in the text, or undefined. */
+export function absolutePathIn(text: string): string | undefined {
+  for (const pattern of ABSOLUTE_PATHS) {
+    const match = pattern.exec(text)
+    if (match) return match[0].trim().slice(0, 120)
+  }
+  return undefined
+}
+
+/**
  * The reason a write to `filePath` is refused, or undefined when it is allowed.
  *
  * Every refusal names the target path and says what to do instead, because the
@@ -58,7 +85,12 @@ export function apply(ctx: Context): void {
     const filePath = filePathOf(exec)
     if (filePath === undefined) return next()
     const reason = denyReason(sessionCwd(exec.agent), filePath)
-    if (reason === undefined) return next()
-    return { kind: 'deny', reason }
+    if (reason !== undefined) return { kind: 'deny', reason }
+    const content = contentOf(exec)
+    const absolute = content === undefined ? undefined : absolutePathIn(content)
+    if (absolute !== undefined) {
+      return { kind: 'deny', reason: `Refusing to write ${filePath}: the content contains an absolute filesystem path (${absolute}). Use a path inside the project, or a placeholder such as <project>.` }
+    }
+    return next()
   })
 }

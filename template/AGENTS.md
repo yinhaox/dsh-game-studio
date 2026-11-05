@@ -72,6 +72,13 @@ and a diff a person can read in one sitting. More than that is two tickets. If t
 story is larger, report a split plan as one `progress` message and stop; do not
 start an oversized diff.
 
+## No absolute filesystem paths
+
+Never write an absolute filesystem path into a file: no drive letter, no UNC
+share, no home or temp directory. That applies to code, comments, tests,
+documents, commit messages, and evidence. Use a path inside the project. The
+write guard and `scripts/scan-paths.py` both refuse a violation.
+
 ## Evidence
 
 Evidence must come from a real run of this checkout. A design doc, a reasoning trace, or a hand-written description is not evidence.
