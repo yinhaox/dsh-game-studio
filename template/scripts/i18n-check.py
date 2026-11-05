@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Check that every translation key used in code exists in each language table.
 
-Scans `tr("key")` calls in scripts and `tr("key")`-style keys in scenes, then
-compares them with `assets/data/i18n/<lang>.json`. A key used but missing from a
-language fails the check; an unused key is reported as a warning.
+Scans `tr("key")` and `text("key")` calls in scripts and `tr("key")`-style keys in
+scenes, then compares them with `assets/data/i18n/<lang>.json`. A key used but
+missing from a language fails the check; an unused key is reported as a warning.
 
     python scripts/i18n-check.py
 """
@@ -17,7 +17,9 @@ import os
 import re
 import sys
 
-TR = re.compile(r"""tr\(\s*["']([A-Za-z0-9_.%-]+)["']""")
+# Both Godot's `tr("key")` and the project's `Localization.text("key")` name a
+# table entry; a scan that only saw `tr()` would miss half the UI.
+TR = re.compile(r"""(?:\btr|\btext)\(\s*["']([A-Za-z0-9_.%-]+)["']""")
 I18N_DIR = os.path.join("assets", "data", "i18n")
 
 
