@@ -1,5 +1,5 @@
 diff --git a/src/sources/github.ts b/src/sources/github.ts
-index f9b80b6..91b2904 100644
+index f9b80b6..e2a23fa 100644
 --- a/src/sources/github.ts
 +++ b/src/sources/github.ts
 @@ -154,6 +154,8 @@ const newRound = (signal?: AbortSignal): Round => ({ started: new Date().toISOSt
@@ -11,7 +11,22 @@ index f9b80b6..91b2904 100644
  /** True when GitHub returns HTTP 410 (Gone); HTTP 404 is retried because it can indicate revoked access to a private repository. */
  const deleted = (error: unknown): boolean => error instanceof CliError && error.code === 410
  /** Records a failed read on the Thread and in the round; deleted (410) or abandoned (24h+) threads do not fail the round. */
-@@ -281,8 +283,14 @@ export async function pollRound(ctx: SourceContext, signal?: AbortSignal): Promi
+@@ -277,12 +279,29 @@ async function pollBranchCi(ctx: SourceContext, round: Round): Promise<void> {
+  * (24h+) threads are recorded only on the thread and in health detail.
+  * @returns the polling interval requested by GitHub, in seconds.
+  */
++/** Remaining GitHub API calls for this token, or undefined when the check itself fails. */
++async function rateRemaining(ctx: SourceContext): Promise<number | undefined> {
++  try {
++    const value = await ctx.commands.gh<{ rate: { remaining: number } }>(['api', 'rate_limit'])
++    return value.rate.remaining
++  } catch {
++    return undefined
++  }
++}
++
++
+ export async function pollRound(ctx: SourceContext, signal?: AbortSignal): Promise<number> {
    const round = newRound(signal)
    const notified = await pollNotifications(ctx, round).then(value => ({ value }), (error: unknown) => ({ error }))
    await pollRepository(ctx, round)
@@ -28,7 +43,7 @@ index f9b80b6..91b2904 100644
    if ('error' in notified) throw notified.error
    const { count, interval } = notified.value
    if (signal?.aborted) return interval
-@@ -291,7 +299,8 @@ export async function pollRound(ctx: SourceContext, signal?: AbortSignal): Promi
+@@ -291,7 +310,8 @@ export async function pollRound(ctx: SourceContext, signal?: AbortSignal): Promi
    const dropped = (round.dropped.length ? `; deleted on GitHub: ${named(round.dropped)}` : '')
      + (round.abandoned.length ? `; dropped after their reads kept failing: ${named(round.abandoned)}` : '')
      + (round.tally.skipped ? `; ${round.tally.skipped} unreadable items skipped` : '')
@@ -38,7 +53,7 @@ index f9b80b6..91b2904 100644
    return interval
  }
  /** Reads notifications since the cursor and each Issue or PR they name, advancing the cursor atomically with the retry map for failed reads; deleted (410) Issues are dropped once their error is recorded. */
-@@ -338,7 +347,10 @@ async function pollNotifications(ctx: SourceContext, round: Round): Promise<{ co
+@@ -338,7 +358,10 @@ async function pollNotifications(ctx: SourceContext, round: Round): Promise<{ co
        delete retries[number]
      }
    }
