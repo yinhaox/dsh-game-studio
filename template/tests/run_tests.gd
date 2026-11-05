@@ -1,84 +1,73 @@
 extends SceneTree
 
-## Headless regression checks for the Game Studio template project.
+## Headless regression runner for the Game Studio template project.
 ##
 ## Run with:
 ##   godot --headless --path . -s res://tests/run_tests.gd
 ##
-## Prints one PASS line per successful check and exits 0 only when every
-## check passes; any failure exits 1.
+## Discovers every script in res://tests/suites/*.gd, calls its
+## `static func run(t)` and passes this runner as `t`, so a suite reports a
+## result with `t.check(condition, message)`. Add a suite by dropping a file in
+## tests/suites/; this runner never changes.
 
-const MAIN_SCRIPT = preload("res://src/main.gd")
-const MAIN_SCENE_PATH = "res://scenes/main.tscn"
-const CAPTURE_SCRIPT_PATH = "res://addons/studio_capture/capture.gd"
+const SUITES_DIR := "res://tests/suites"
 
 var _passed := 0
 var _failed := 0
 
 
 func _init() -> void:
-	_test_main_helpers()
-	_test_main_scene()
-	_test_project_settings()
+	_run_all.call_deferred()
 
+
+func _run_all() -> void:
+	var paths := _discover_suites()
+	if paths.is_empty():
+		printerr("FAIL: no suites found in %s" % SUITES_DIR)
+		quit(1)
+		return
+	for path in paths:
+		_run_suite(path)
 	if _failed == 0:
 		print("PASS: %d checks passed" % _passed)
 		quit(0)
 		return
-
 	printerr("FAIL: %d of %d checks failed" % [_failed, _passed + _failed])
 	quit(1)
 
 
-func _check(condition: bool, label: String) -> void:
+func check(condition: bool, message: String) -> void:
 	if condition:
 		_passed += 1
-		print("PASS: %s" % label)
+		print("PASS: %s" % message)
 	else:
 		_failed += 1
-		printerr("FAIL: %s" % label)
+		printerr("FAIL: %s" % message)
 
 
-func _project_name() -> String:
-	return str(ProjectSettings.get_setting("application/config/name", ""))
+func _discover_suites() -> PackedStringArray:
+	var paths := PackedStringArray()
+	var directory := DirAccess.open(SUITES_DIR)
+	if directory == null:
+		return paths
+	for name in directory.get_files():
+		if name.ends_with(".gd"):
+			paths.append(SUITES_DIR.path_join(name))
+	paths.sort()
+	return paths
 
 
-func _test_main_helpers() -> void:
-	_check(MAIN_SCRIPT.title_text() == _project_name(), "main.title_text() returns the project name")
-	_check(MAIN_SCRIPT.status_text(0) == "%s (0 frames)" % _project_name(), "main.status_text(0) formats zero frames")
-	_check(MAIN_SCRIPT.status_text(7) == "%s (7 frames)" % _project_name(), "main.status_text(7) formats seven frames")
-	_check(MAIN_SCRIPT.status_text(-3) == "%s (0 frames)" % _project_name(), "main.status_text() clamps negative frames")
-
-
-func _test_main_scene() -> void:
-	_check(ResourceLoader.exists(MAIN_SCENE_PATH), "scenes/main.tscn exists")
-
-	var packed := load(MAIN_SCENE_PATH) as PackedScene
-	if packed == null:
-		_check(false, "scenes/main.tscn loads as a PackedScene")
+func _run_suite(path: String) -> void:
+	var script := load(path) as Script
+	if script == null:
+		printerr("FAIL: cannot load suite %s" % path)
+		_failed += 1
 		return
-	_check(true, "scenes/main.tscn loads as a PackedScene")
-
-	var root := packed.instantiate()
-	if root == null:
-		_check(false, "scenes/main.tscn instantiates")
+	print("SUITE: %s" % path)
+	var instance = script.new()
+	if instance == null or not instance.has_method("run"):
+		printerr("FAIL: suite %s has no run(t)" % path)
+		_failed += 1
 		return
-	_check(root is Node2D, "main scene root is a Node2D")
-	_check(str(root.name) == "Main", "main scene root is named Main")
-
-	var attached := root.get_script() as Script
-	_check(attached != null and attached.resource_path == "res://src/main.gd", "main scene root runs src/main.gd")
-
-	var label := root.get_node_or_null("Title") as Label
-	_check(label != null, "main scene has a Title label")
-	if label != null:
-		_check(label.text == _project_name(), "Title label reads the project name")
-	root.free()
-
-
-func _test_project_settings() -> void:
-	_check(not _project_name().is_empty(), "project name is set")
-	_check(ProjectSettings.get_setting("application/run/main_scene", "") == MAIN_SCENE_PATH, "main scene is registered in project.godot")
-	_check(ProjectSettings.get_setting("autoload/StudioCapture", "") == "*" + CAPTURE_SCRIPT_PATH, "StudioCapture autoload points at the capture addon")
-	_check(int(ProjectSettings.get_setting("display/window/size/viewport_width", 0)) == 1152, "viewport width is 1152")
-	_check(int(ProjectSettings.get_setting("display/window/size/viewport_height", 0)) == 648, "viewport height is 648")
+	instance.run(self)
+	instance.free()
