@@ -86,6 +86,10 @@ scripts/              init / check / compat-check
 
 工单默认按 fine 粒度拆：1–3 条验收、≤3 个目录、目标 ≤300 行；超了就报告拆分方案而不是硬做（[docs/006-granularity.md](docs/006-granularity.md)）。PR 合并后 issue 自动关闭，两条路径见 [docs/007-issue-lifecycle.md](docs/007-issue-lifecycle.md)。每张工单的墙钟、步数、工具调用与 token 用 `scripts/studio-metrics.py` 统计。
 
+## 无人干预实践
+
+第四款 Lanternfall 全程没有人工试玩或拍板：5 轮 quality-critic、自动试玩、路径/文案/翻译门禁与录屏评审替代了人眼。复盘见 [docs/011-lanternfall-autonomy.md](docs/011-lanternfall-autonomy.md)。
+
 ## 复杂项目
 
 第三款 Bastion 3D（3D 塔防）用来测规模：20 波内容、5 塔 6 敌 1 Boss、三 worker 并行、200 单位性能门槛。结果与数据见 [docs/008-bastion-complex-project.md](docs/008-bastion-complex-project.md)。
