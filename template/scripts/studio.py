@@ -245,13 +245,43 @@ def _format_command(argv) -> str:
     return " ".join(["godot", *quoted])
 
 
-def _display_path(path: str, root: str) -> str:
-    """A path relative to the project root when it sits inside it, so a log stays portable."""
+def _project_relative(path: str, root: str) -> str | None:
+    """The path relative to the project root, or None when it points outside it.
+
+    Evidence lives inside the project, so a relative path is the only form that
+    survives a different checkout location, a different machine, or a worktree
+    under the operator's home directory.
+    """
     try:
         common = os.path.commonpath([os.path.abspath(path), os.path.abspath(root)])
     except ValueError:
-        return path
-    return os.path.relpath(path, root) if common == os.path.abspath(root) else path
+        return None
+    if common != os.path.abspath(root):
+        return None
+    return os.path.relpath(path, root).replace(os.sep, "/")
+
+
+def _display_path(path: str, root: str) -> str:
+    """A path relative to the project root when it sits inside it, so a log stays portable."""
+    relative = _project_relative(path, root)
+    return relative if relative is not None else path
+
+
+def _project_argument(path: str, root: str, command: str) -> str | None:
+    """The value handed to Godot: project-relative, so the game's own echo stays portable.
+
+    Returns None after reporting when the path is outside the project, because an
+    absolute path would reach the evidence log through Godot's own output.
+    """
+    relative = _project_relative(path, root)
+    if relative is None:
+        print(
+            f"[{command}] the output must stay inside the project so it can be "
+            "committed as evidence; pass a path such as "
+            "production/qa/evidence/<story>/shot.png",
+            file=sys.stderr,
+        )
+    return relative
 
 
 def _print_tail(output: str, limit: int = 40) -> None:
@@ -448,7 +478,7 @@ def cmd_test(args, config: dict, root: str) -> int:
     if import_code != 0:
         print(f"[test] import failed with exit code {import_code}", file=sys.stderr)
         return _clamp_exit_code(import_code)
-    print(f"[test] project: {root}")
+    print("[test] project: .")
     code, _, timed_out = run_process(
         [godot, "--headless", "--path", ".", "-s", TEST_SCRIPT],
         cwd=root,
@@ -478,11 +508,14 @@ def cmd_run(args, config: dict, root: str) -> int:
     extra = list(getattr(args, "extra", []) or [])
     if args.capture:
         out_path = _resolve_path(args.capture, root)
+        argument = _project_argument(out_path, root, "run")
+        if argument is None:
+            return 2
         parent = os.path.dirname(out_path)
         if parent:
             os.makedirs(parent, exist_ok=True)
-        argv.extend(["--", f"--studio-capture={out_path}", *extra])
-        print(f"[run] capture argument: --studio-capture={_display_path(out_path, root)}")
+        argv.extend(["--", f"--studio-capture={argument}", *extra])
+        print(f"[run] capture argument: --studio-capture={argument}")
     elif extra:
         argv.extend(["--", *extra])
     if extra:
@@ -528,18 +561,21 @@ def cmd_clip(args, config: dict, root: str) -> int:
     """Record a short movie with Godot's Movie Maker, so feel can be reviewed."""
     godot = require_godot(config, root)
     out_path = _resolve_path(args.out, root)
+    argument = _project_argument(out_path, root, "clip")
+    if argument is None:
+        return 2
     parent = os.path.dirname(out_path)
     if parent:
         os.makedirs(parent, exist_ok=True)
     if os.path.isfile(out_path):
         os.remove(out_path)
     seconds = max(1.0, args.seconds)
-    argv = [godot, "--path", ".", "--write-movie", out_path, "--fixed-fps", str(args.fps),
+    argv = [godot, "--path", ".", "--write-movie", argument, "--fixed-fps", str(args.fps),
             "--quit-after", str(int(seconds * args.fps))]
     extra = list(getattr(args, "extra", []) or [])
     if extra:
         argv.extend(["--", *extra])
-    print(f"[clip] recording {seconds:g}s at {args.fps} fps to {_display_path(out_path, root)}")
+    print(f"[clip] recording {seconds:g}s at {args.fps} fps to {argument}")
     code, _, timed_out = run_process(argv, cwd=root, timeout=args.timeout, echo=True)
     if timed_out:
         print("[clip] timed out", file=sys.stderr)
@@ -547,7 +583,7 @@ def cmd_clip(args, config: dict, root: str) -> int:
     if not os.path.isfile(out_path) or os.path.getsize(out_path) <= 1024:
         print("[clip] no usable movie was written", file=sys.stderr)
         return 1
-    print(f"[clip] OK: {_display_path(out_path, root)} ({os.path.getsize(out_path)} bytes)")
+    print(f"[clip] OK: {argument} ({os.path.getsize(out_path)} bytes)")
     return 0
 
 
@@ -560,19 +596,23 @@ def cmd_capture(args, config: dict, root: str) -> int:
         evidence_dir = config_str(config, "evidence_dir", DEFAULT_EVIDENCE_DIR)
         out_path = _resolve_path(os.path.join(evidence_dir, "latest.png"), root)
 
+    argument = _project_argument(out_path, root, "capture")
+    if argument is None:
+        return 2
+
     parent = os.path.dirname(out_path)
     if parent:
         os.makedirs(parent, exist_ok=True)
     if os.path.isfile(out_path):
         try:
             os.remove(out_path)
-            print(f"[capture] removed stale file: {out_path}")
+            print(f"[capture] removed stale file: {_display_path(out_path, root)}")
         except OSError as exc:
             print(f"[capture] warning: cannot remove stale file: {exc}", file=sys.stderr)
 
     extra = list(getattr(args, "extra", []) or [])
-    argv = [godot, "--path", ".", "--", f"--studio-capture={out_path}", *extra]
-    print(f"[capture] target: {_display_path(out_path, root)}")
+    argv = [godot, "--path", ".", "--", f"--studio-capture={argument}", *extra]
+    print(f"[capture] target: {argument}")
     if extra:
         print(f"[capture] user arguments: {' '.join(extra)}")
     print(f"[capture] waiting up to {args.timeout:g}s for the PNG")
@@ -605,7 +645,7 @@ def cmd_capture(args, config: dict, root: str) -> int:
         if size is not None and size > MIN_PNG_BYTES:
             _shutdown(process)
             final_size = _file_size(out_path) or size
-            print(f"[capture] OK: {_display_path(out_path, root)} ({final_size} bytes)")
+            print(f"[capture] OK: {argument} ({final_size} bytes)")
             return 0
 
         _terminate(process)
@@ -616,7 +656,7 @@ def cmd_capture(args, config: dict, root: str) -> int:
         tail = _log_tail(log)
         if size is not None and size <= MIN_PNG_BYTES:
             print(
-                f"[capture] FAILED: {out_path} is only {size} byte(s); "
+                f"[capture] FAILED: {_display_path(out_path, root)} is only {size} byte(s); "
                 f"a real capture is larger than {MIN_PNG_BYTES} bytes.",
                 file=sys.stderr,
             )
@@ -628,7 +668,7 @@ def cmd_capture(args, config: dict, root: str) -> int:
         elif exit_code is not None:
             print(
                 f"[capture] FAILED: Godot exited with code {exit_code} "
-                f"before writing {out_path}.",
+                f"before writing {_display_path(out_path, root)}.",
                 file=sys.stderr,
             )
             print(
