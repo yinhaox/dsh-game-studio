@@ -35,5 +35,8 @@ jobs:
       - name: Reject placeholders and literal UI text
         run: python3 scripts/quality-check.py
 
+      - name: Check translation coverage
+        run: python3 scripts/i18n-check.py
+
       - name: Report the test count
         run: python3 -c "print('see the test step output for the count')"
