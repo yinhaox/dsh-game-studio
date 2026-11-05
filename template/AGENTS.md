@@ -49,9 +49,9 @@ Only files inside your work type's boundary may change. Everything else is read-
 | Work type | May write | Must not write |
 |---|---|---|
 | design-doc | design/<system>.md and design/systems-index.md | code, scenes, tests, production/ |
-| story-implement | src/, scenes/, tests/, assets/data/, assets/shaders/, the story file, production/qa/evidence/<story-slug>/ | design/, production/releases/, studio.yaml |
+| story-implement | src/, scenes/, tests/, assets/data/, assets/shaders/, assets/audio/, the story file, production/qa/evidence/<story-slug>/ | design/, production/releases/, studio.yaml |
 | code-review | nothing: this work type is read-only | any file |
-| bug-fix | the smallest set under src/, scenes/, tests/, assets/data/ and assets/shaders/ that removes the root cause, plus the story file and its evidence directory | unrelated refactors, design/, production/releases/ |
+| bug-fix | the smallest set under src/, scenes/, tests/, assets/data/, assets/shaders/ and assets/audio/ that removes the root cause, plus the story file and its evidence directory | unrelated refactors, design/, production/releases/ |
 | qa-evidence | production/qa/evidence/<story-slug>/ and the story file | src/, scenes/, tests/, design/ |
 | release-prep | production/releases/<version>.md | code, scenes, tags, merges |
 | studio-maintenance | engineering configuration and scripts: studio.yaml, scripts/, project.godot, .github/ workflows, the tests harness, .dsh configuration | game design, gameplay behavior beyond the configuration fix |
