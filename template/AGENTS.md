@@ -73,6 +73,12 @@ and a diff a person can read in one sitting. More than that is two tickets. If t
 story is larger, report a split plan as one `progress` message and stop; do not
 start an oversized diff.
 
+## No placeholder or literal UI text
+
+Player-facing text comes from the translation table through `tr()`. A UI script or
+scene must not assign a literal string to `text`, and no source file may contain
+TODO, FIXME or "placeholder". `scripts/quality-check.py` enforces this in CI.
+
 ## No absolute filesystem paths
 
 Never write an absolute filesystem path into a file: no drive letter, no UNC
