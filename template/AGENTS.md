@@ -73,6 +73,12 @@ and a diff a person can read in one sitting. More than that is two tickets. If t
 story is larger, report a split plan as one `progress` message and stop; do not
 start an oversized diff.
 
+## Quality review before a merge
+
+A gameplay change is not ready when its tests pass. A `quality-critic` review
+ticket reads the clip frames against `design/art-direction.md` and reports
+findings with severities; its verdict informs the merge. The critic is read-only.
+
 ## No placeholder or literal UI text
 
 Player-facing text comes from the translation table through `tr()`. A UI script or
