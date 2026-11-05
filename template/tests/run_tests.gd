@@ -70,4 +70,3 @@ func _run_suite(path: String) -> void:
 		_failed += 1
 		return
 	instance.run(self)
-	instance.free()

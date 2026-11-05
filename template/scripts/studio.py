@@ -379,7 +379,7 @@ def changed_gd_scripts(root: str) -> list:
 
 def cmd_check(args, config: dict, root: str) -> int:
     godot = require_godot(config, root)
-    print(f"[check] project: {root}")
+    print("[check] project: .")
     code, output, timed_out = run_process(
         [godot, "--headless", "--path", ".", "--import"],
         cwd=root,
